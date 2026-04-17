@@ -21,68 +21,82 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> registrar(BuildContext context) async {
 
-    if(!aceptarTerminos){
+    final nombre = nombreController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    // ✅ VALIDACIONES CLIENTE
+    if (nombre.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Debes aceptar los términos"),
-        ),
+        const SnackBar(content: Text("Rellena todos los campos")),
       );
       return;
     }
 
-    if(passwordController.text != confirmPasswordController.text){
+    if (nombre.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Las contraseñas no coinciden"),
-        ),
+        const SnackBar(content: Text("El nombre debe tener al menos 2 caracteres")),
+      );
+      return;
+    }
+
+    if (!email.contains("@") || !email.contains(".")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("El email no es válido")),
+      );
+      return;
+    }
+
+    if (password.length < 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("La contraseña debe tener mínimo 4 caracteres")),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Las contraseñas no coinciden")),
+      );
+      return;
+    }
+
+    if (!aceptarTerminos) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Debes aceptar los términos")),
       );
       return;
     }
 
     final response = await http.post(
-
       Uri.parse("http://10.0.2.2:8080/api/usuarios/registrar"),
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
+      headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-
-        "nombre": nombreController.text,
-        "email": emailController.text,
-        "password": passwordController.text
-
+        "nombre": nombre,
+        "email": email,
+        "password": password,
       }),
     );
 
-    if(response.statusCode == 201){
+    if (response.statusCode == 201) {
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Usuario registrado correctamente"),
-        ),
+        const SnackBar(content: Text("Usuario registrado correctamente")),
       );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
 
     } else {
 
       final data = json.decode(response.body);
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(data["mensaje"]),
-        ),
+        SnackBar(content: Text(data["mensaje"])),
       );
-
     }
-
   }
 
   @override
@@ -99,10 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           const SizedBox(height: 40),
 
-          Image.asset(
-            "assets/images/logo.png",
-            width: width * 0.4,
-          ),
+          Image.asset("assets/images/logo.png", width: width * 0.4),
 
           const SizedBox(height: 20),
 
@@ -124,10 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const Text(
                     "Registrarse",
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontFamily: "Poppins",
-                    ),
+                    style: TextStyle(fontSize: 40, fontFamily: "Poppins"),
                   ),
 
                   const SizedBox(height: 30),
@@ -136,9 +144,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: nombreController,
                     decoration: InputDecoration(
                       hintText: "Nombre",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
 
@@ -146,11 +153,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   TextField(
                     controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      hintText: "Gmail",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      hintText: "Email",
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
 
@@ -161,9 +168,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Contraseña",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
 
@@ -174,9 +180,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Confirmar Contraseña",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
 
@@ -185,7 +190,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       Checkbox(
                         value: aceptarTerminos,
                         activeColor: const Color(0xFF1F5DA0),
@@ -195,7 +199,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           });
                         },
                       ),
-
                       const Text(
                         "Aceptar términos y condiciones",
                         style: TextStyle(fontFamily: "Poppins"),
@@ -206,10 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 20),
 
                   GestureDetector(
-                    onTap: () {
-                      registrar(context);
-                    },
-
+                    onTap: () => registrar(context),
                     child: Container(
                       width: width * 0.7,
                       height: 50,
@@ -218,7 +218,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       alignment: Alignment.center,
-
                       child: const Text(
                         "Registrarse",
                         style: TextStyle(
@@ -235,29 +234,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       const Text(
                         "¿Tienes ya una cuenta existente?",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontFamily: "Poppins",
-                        ),
+                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins"),
                       ),
-
                       const SizedBox(width: 8),
-
                       GestureDetector(
                         onTap: () {
-
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginScreen(),
-                            ),
+                            MaterialPageRoute(builder: (context) => LoginScreen()),
                           );
-
                         },
-
                         child: const Text(
                           "Inicia Sesión",
                           style: TextStyle(

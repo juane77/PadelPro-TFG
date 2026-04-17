@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/reserva_service.dart';
 import '../service/session.dart';
+import '../service/notification_push_service.dart';
 
 class MisReservasScreen extends StatefulWidget {
   const MisReservasScreen({super.key});
@@ -31,6 +32,12 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
           reservas = ReservaService.getReservasUsuario(Session.usuarioId!);
         });
 
+        // 🔔 PUSH NOTIFICATION
+        await PushService.notificarImportante(
+          "Reserva cancelada",
+          "Tu reserva ha sido cancelada correctamente",
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Reserva cancelada correctamente"),
@@ -41,9 +48,16 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
 
     } catch(e){
 
+      final mensaje = e.toString().replaceAll("Exception: ", "");
+
+      await PushService.notificarAlerta(
+        "No se pudo cancelar",
+        mensaje,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll("Exception: ", "")),
+          content: Text(mensaje),
         ),
       );
 

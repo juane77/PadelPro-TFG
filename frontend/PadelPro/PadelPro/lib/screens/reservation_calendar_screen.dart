@@ -3,6 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../models/pista.dart';
 import '../service/reserva_service.dart';
 import '../service/session.dart';
+import '../service/notification_push_service.dart';
 
 class ReservationCalendarScreen extends StatefulWidget {
 
@@ -70,28 +71,10 @@ class _ReservationCalendarScreenState
     });
   }
 
-  /// CARGAR RESERVAS DEL DIA
+  /// CARGAR RESERVAS DEL DIA (siempre desde la pista, no del usuario)
   void cargarReservasDia() async {
 
-    /// primero mira si ya tenemos reservas en memoria
-    DateTime dia = DateTime(
-      selectedDay.year,
-      selectedDay.month,
-      selectedDay.day,
-    );
-
-    if (reservasPorDia.containsKey(dia)) {
-
-      setState(() {
-        horasReservadas = reservasPorDia[dia]!;
-      });
-
-      return;
-    }
-
-    /// si no están en memoria las carga del backend
-    List<String> reservas =
-    await ReservaService.getHorasReservadas(
+    List<String> reservas = await ReservaService.getHorasReservadas(
         widget.pista.id,
         selectedDay);
 
@@ -130,6 +113,12 @@ class _ReservationCalendarScreenState
 
         cargarReservasMes();
 
+        // 🔔 PUSH NOTIFICATION
+        await PushService.notificarInfo(
+          "Reserva confirmada",
+          "Tu reserva en ${widget.pista.nombre} el ${selectedDay.day}/${selectedDay.month} a las $hora ha sido confirmada",
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Reserva creada correctamente"),
@@ -139,9 +128,18 @@ class _ReservationCalendarScreenState
 
     } catch(e){
 
+      final mensaje = e.toString().replaceAll("Exception: ", "");
+
+      // 🔔 PUSH ALERTA si es límite, IMPORTANTE si es otro error
+      if (mensaje.contains("máximo") || mensaje.contains("límite")) {
+        await PushService.notificarAlerta("Límite alcanzado", mensaje);
+      } else {
+        await PushService.notificarImportante("Reserva no disponible", mensaje);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceAll("Exception: ", "")),
+          content: Text(mensaje),
         ),
       );
 
@@ -243,8 +241,7 @@ class _ReservationCalendarScreenState
 
                 final hora = horas[index];
 
-                bool ocupada = horasReservadas.contains(hora) ||
-                    (reservasPorDia[selectedDay]?.contains(hora) ?? false);
+                bool ocupada = horasReservadas.contains(hora);
 
                 return ListTile(
 
