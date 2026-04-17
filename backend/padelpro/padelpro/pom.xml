@@ -11,7 +11,7 @@
     <groupId>com.tfg</groupId>
     <artifactId>padelpro</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <n>padelpro</n>
+    <name>padelpro</name>
     <description>TFG 2DAM</description>
     <url/>
     <licenses>
@@ -41,9 +41,10 @@
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
+        <!-- PostgreSQL — reemplaza MySQL -->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 

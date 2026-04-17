@@ -12,8 +12,8 @@ public interface PistaRepository extends JpaRepository<Pista, Long> {
 
     @Query("""
            SELECT p FROM Pista p
-           WHERE (:tipo IS NULL OR LOWER(p.tipo) = LOWER(:tipo))
-           AND (:ciudad IS NULL OR LOWER(p.club.ciudad) = LOWER(:ciudad))
+           WHERE (:tipo IS NULL OR LOWER(p.tipo) = LOWER(CAST(:tipo AS string)))
+           AND (:ciudad IS NULL OR LOWER(p.club.ciudad) = LOWER(CAST(:ciudad AS string)))
            AND (:precioMax IS NULL OR p.precioHora <= :precioMax)
            """)
     List<Pista> buscarConFiltros(
