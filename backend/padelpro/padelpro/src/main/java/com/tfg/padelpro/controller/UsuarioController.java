@@ -4,11 +4,13 @@ import com.tfg.padelpro.dto.request.RegistroRequestDTO;
 import com.tfg.padelpro.dto.request.LoginRequestDTO;
 import com.tfg.padelpro.entity.Usuario;
 import com.tfg.padelpro.repository.UsuarioRepository;
+import com.tfg.padelpro.security.JwtUtil;
 
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,12 +20,18 @@ import java.util.Map;
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository,
+                             PasswordEncoder passwordEncoder,
+                             JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
-    // 🔵 REGISTRO CON DTO Y VALIDACIÓN
+    // 🔵 REGISTRO CON BCRYPT
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(@Valid @RequestBody RegistroRequestDTO dto) {
 
@@ -32,10 +40,12 @@ public class UsuarioController {
                     .body(Map.of("mensaje", "El email ya está registrado"));
         }
 
+        String passwordHasheada = passwordEncoder.encode(dto.password());
+
         Usuario nuevo = new Usuario(
                 dto.nombre(),
                 dto.email(),
-                dto.password()
+                passwordHasheada
         );
 
         Usuario guardado = usuarioRepository.save(nuevo);
@@ -49,24 +59,44 @@ public class UsuarioController {
                 ));
     }
 
-    // 🔵 LOGIN CON DTO Y VALIDACIÓN
+    // 🔵 LOGIN — devuelve token JWT
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO dto) {
 
         Usuario u = usuarioRepository.findByEmail(dto.email());
 
-        if (u == null || !u.getPassword().equals(dto.password())) {
+        if (u == null || !passwordEncoder.matches(dto.password(), u.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensaje", "Email o contraseña incorrectos"));
         }
+
+        String token = jwtUtil.generateToken(u.getEmail());
 
         return ResponseEntity.ok(
                 Map.of(
                         "id", u.getId(),
                         "nombre", u.getNombre(),
                         "email", u.getEmail(),
-                        "rol", u.getRol()
+                        "rol", u.getRol(),
+                        "token", token
                 )
         );
+    }
+
+    // 🔵 EDITAR NOMBRE
+    @PutMapping("/{id}/nombre")
+    public ResponseEntity<?> editarNombre(@PathVariable Long id,
+                                          @RequestBody Map<String, String> body) {
+
+        return usuarioRepository.findById(id).map(u -> {
+            String nuevoNombre = body.get("nombre");
+            if (nuevoNombre == null || nuevoNombre.trim().length() < 2) {
+                return ResponseEntity.badRequest()
+                        .<Object>body(Map.of("mensaje", "El nombre debe tener al menos 2 caracteres"));
+            }
+            u.setNombre(nuevoNombre.trim());
+            usuarioRepository.save(u);
+            return ResponseEntity.<Object>ok(Map.of("mensaje", "Nombre actualizado correctamente"));
+        }).orElse(ResponseEntity.<Object>notFound().build());
     }
 }

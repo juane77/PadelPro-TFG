@@ -35,4 +35,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             LocalDateTime fin,
             String estado
     );
+
+    List<Reserva> findByFechaReservaBefore(LocalDateTime fecha);
 }
