@@ -5,7 +5,7 @@ import 'session.dart';
 
 class ApiService {
 
-  static const String baseUrl = "http://10.0.2.2:8080/api";
+  static const String baseUrl = "https://padelpro-tfg.onrender.com/api";
 
   static Future<List<Pista>> getPistas() async {
 

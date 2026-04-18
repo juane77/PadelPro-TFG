@@ -4,7 +4,7 @@ import 'session.dart';
 
 class NotificacionApi {
 
-  static const String baseUrl = "http://10.0.2.2:8080/api";
+  static const String baseUrl = "https://padelpro-tfg.onrender.com/api";
 
   static Future<List<dynamic>> getNotificaciones(int usuarioId) async {
     final response = await http.get(

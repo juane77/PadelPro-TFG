@@ -13,7 +13,6 @@ class LoginScreen extends StatelessWidget {
 
   Future<void> login(BuildContext context) async {
 
-    // ✅ VALIDACIÓN CLIENTE
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
@@ -38,33 +37,40 @@ class LoginScreen extends StatelessWidget {
       return;
     }
 
-    final response = await http.post(
-      Uri.parse("http://10.0.2.2:8080/api/usuarios/login"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "email": email,
-        "password": password,
-      }),
-    );
+    try {
 
-    if (response.statusCode == 200) {
+      final response = await http.post(
+        Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/login"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": email,
+          "password": password,
+        }),
+      ).timeout(const Duration(seconds: 30));
 
-      final data = json.decode(response.body);
+      if (response.statusCode == 200) {
 
-      Session.usuarioId = data["id"];
-      Session.nombre = data["nombre"];
-      Session.email = data["email"];
-      Session.token = data["token"];
+        final data = json.decode(response.body);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+        Session.usuarioId = data["id"];
+        Session.nombre = data["nombre"];
+        Session.email = data["email"];
+        Session.token = data["token"];
 
-    } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
 
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Email o contraseña incorrectos")),
+        );
+      }
+
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email o contraseña incorrectos")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
@@ -138,23 +144,22 @@ class LoginScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  GestureDetector(
-                    onTap: () => login(context),
-                    child: Container(
-                      width: width * 0.7,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1F5DA0),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1F5DA0),
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(width * 0.7, 50),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Iniciar Sesión",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: "Poppins",
-                        ),
+                      elevation: 0,
+                    ),
+                    onPressed: () => login(context),
+                    child: const Text(
+                      "Iniciar Sesión",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Poppins",
                       ),
                     ),
                   ),

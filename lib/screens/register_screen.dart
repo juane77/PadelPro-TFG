@@ -26,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
-    // ✅ VALIDACIONES CLIENTE
     if (nombre.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Rellena todos los campos")),
@@ -69,32 +68,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final response = await http.post(
-      Uri.parse("http://10.0.2.2:8080/api/usuarios/registrar"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "nombre": nombre,
-        "email": email,
-        "password": password,
-      }),
-    );
+    try {
 
-    if (response.statusCode == 201) {
+      final response = await http.post(
+        Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/registrar"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nombre": nombre,
+          "email": email,
+          "password": password,
+        }),
+      ).timeout(const Duration(seconds: 30));
 
+      if (response.statusCode == 201) {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Usuario registrado correctamente")),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+
+      } else {
+
+        final data = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["mensaje"])),
+        );
+      }
+
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario registrado correctamente")),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-
-    } else {
-
-      final data = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data["mensaje"])),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
@@ -208,23 +215,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   const SizedBox(height: 20),
 
-                  GestureDetector(
-                    onTap: () => registrar(context),
-                    child: Container(
-                      width: width * 0.7,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1F5DA0),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1F5DA0),
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(width * 0.7, 50),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Registrarse",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: "Poppins",
-                        ),
+                      elevation: 0,
+                    ),
+                    onPressed: () => registrar(context),
+                    child: const Text(
+                      "Registrarse",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Poppins",
                       ),
                     ),
                   ),

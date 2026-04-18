@@ -88,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return;
                 }
                 final response = await http.put(
-                  Uri.parse("http://10.0.2.2:8080/api/usuarios/${Session.usuarioId}/nombre"),
+                  Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/${Session.usuarioId}/nombre"),
                   headers: Session.authHeaders,
                   body: jsonEncode({"nombre": nuevoNombre}),
                 );
