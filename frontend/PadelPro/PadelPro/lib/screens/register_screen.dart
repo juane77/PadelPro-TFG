@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../utils/app_snackbar.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -20,247 +21,238 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final confirmPasswordController = TextEditingController();
 
   Future<void> registrar(BuildContext context) async {
-
     final nombre = nombreController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
-    // ✅ VALIDACIONES CLIENTE
     if (nombre.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Rellena todos los campos")),
-      );
+      AppSnackbar.aviso(context, "Rellena todos los campos");
       return;
     }
-
     if (nombre.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("El nombre debe tener al menos 2 caracteres")),
-      );
+      AppSnackbar.aviso(context, "El nombre debe tener al menos 2 caracteres");
       return;
     }
-
     if (!email.contains("@") || !email.contains(".")) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("El email no es válido")),
-      );
+      AppSnackbar.error(context, "El email no es válido");
       return;
     }
-
     if (password.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("La contraseña debe tener mínimo 4 caracteres")),
-      );
+      AppSnackbar.error(context, "La contraseña debe tener mínimo 4 caracteres");
       return;
     }
-
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Las contraseñas no coinciden")),
-      );
+      AppSnackbar.error(context, "Las contraseñas no coinciden");
       return;
     }
-
     if (!aceptarTerminos) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Debes aceptar los términos")),
-      );
+      AppSnackbar.aviso(context, "Debes aceptar los términos");
       return;
     }
 
-    final response = await http.post(
-      Uri.parse("http://10.0.2.2:8080/api/usuarios/registrar"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "nombre": nombre,
-        "email": email,
-        "password": password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/registrar"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"nombre": nombre, "email": email, "password": password}),
+      ).timeout(const Duration(seconds: 30));
 
-    if (response.statusCode == 201) {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario registrado correctamente")),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-
-    } else {
-
-      final data = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data["mensaje"])),
-      );
+      if (response.statusCode == 201) {
+        AppSnackbar.exito(context, "Usuario registrado correctamente");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => LoginScreen()),
+        );
+      } else {
+        final data = json.decode(response.body);
+        AppSnackbar.error(context, data["mensaje"]);
+      }
+    } catch (e) {
+      AppSnackbar.error(context, "Error de conexión. Inténtalo de nuevo.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final width = MediaQuery.of(context).size.width;
+    final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF1F5DA0),
 
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
 
-          const SizedBox(height: 40),
+              SizedBox(height: h * 0.04),
 
-          Image.asset("assets/images/logo.png", width: width * 0.4),
+              Image.asset("assets/images/logo.png", width: w * 0.35),
 
-          const SizedBox(height: 20),
+              SizedBox(height: h * 0.02),
 
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(45),
-                  topRight: Radius.circular(45),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: w * 0.07,
+                  vertical: h * 0.035,
                 ),
-              ),
-
-              child: Column(
-                children: [
-
-                  const Text(
-                    "Registrarse",
-                    style: TextStyle(fontSize: 40, fontFamily: "Poppins"),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40),
+                    topRight: Radius.circular(40),
                   ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
 
-                  const SizedBox(height: 30),
-
-                  TextField(
-                    controller: nombreController,
-                    decoration: InputDecoration(
-                      hintText: "Nombre",
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      hintText: "Email",
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Contraseña",
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: confirmPasswordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Confirmar Contraseña",
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                        value: aceptarTerminos,
-                        activeColor: const Color(0xFF1F5DA0),
-                        onChanged: (value) {
-                          setState(() {
-                            aceptarTerminos = value!;
-                          });
-                        },
+                    Text(
+                      "Registrarse",
+                      style: TextStyle(
+                        fontSize: (w * 0.09).clamp(28.0, 40.0),
+                        fontFamily: "Poppins",
                       ),
-                      const Text(
-                        "Aceptar términos y condiciones",
-                        style: TextStyle(fontFamily: "Poppins"),
-                      ),
-                    ],
-                  ),
+                    ),
 
-                  const SizedBox(height: 20),
+                    SizedBox(height: h * 0.025),
 
-                  GestureDetector(
-                    onTap: () => registrar(context),
-                    child: Container(
-                      width: width * 0.7,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1F5DA0),
-                        borderRadius: BorderRadius.circular(16),
+                    TextField(
+                      controller: nombreController,
+                      decoration: InputDecoration(
+                        hintText: "Nombre",
+                        prefixIcon: const Icon(Icons.person_outline),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Registrarse",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: "Poppins",
+                    ),
+
+                    SizedBox(height: h * 0.018),
+
+                    TextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+
+                    SizedBox(height: h * 0.018),
+
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Contraseña",
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+
+                    SizedBox(height: h * 0.018),
+
+                    TextField(
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Confirmar Contraseña",
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+
+                    SizedBox(height: h * 0.015),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: aceptarTerminos,
+                          activeColor: const Color(0xFF1F5DA0),
+                          onChanged: (value) => setState(() => aceptarTerminos = value!),
                         ),
-                      ),
+                        Flexible(
+                          child: Text(
+                            "Aceptar términos y condiciones",
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              fontSize: (w * 0.035).clamp(12.0, 15.0),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    SizedBox(height: h * 0.02),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "¿Tienes ya una cuenta existente?",
-                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins"),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen()),
-                          );
-                        },
-                        child: const Text(
-                          "Inicia Sesión",
+                    SizedBox(
+                      width: w * 0.7,
+                      height: h * 0.065,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1F5DA0),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        onPressed: () => registrar(context),
+                        child: Text(
+                          "Registrarse",
                           style: TextStyle(
-                            color: Color(0xFF1F5DA0),
+                            fontSize: (w * 0.05).clamp(16.0, 22.0),
                             fontFamily: "Poppins",
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+
+                    SizedBox(height: h * 0.02),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            "¿Tienes ya una cuenta existente?",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontFamily: "Poppins",
+                              fontSize: (w * 0.033).clamp(11.0, 14.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => LoginScreen()),
+                          ),
+                          child: Text(
+                            "Inicia Sesión",
+                            style: TextStyle(
+                              color: const Color(0xFF1F5DA0),
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.bold,
+                              fontSize: (w * 0.033).clamp(11.0, 14.0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: h * 0.02),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

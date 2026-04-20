@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'app_settings.dart';
 
 class PushService {
 
@@ -49,7 +50,11 @@ class PushService {
     await AwesomeNotifications().requestPermissionToSendNotifications();
   }
 
+  // Comprueba si el usuario tiene las notificaciones activadas
+  static bool get _activadas => AppSettings().notificaciones;
+
   static Future<void> notificarInfo(String titulo, String mensaje) async {
+    if (!_activadas) return;
     final id = ++_idCounter;
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -66,6 +71,7 @@ class PushService {
   }
 
   static Future<void> notificarImportante(String titulo, String mensaje) async {
+    if (!_activadas) return;
     final id = ++_idCounter;
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -82,6 +88,7 @@ class PushService {
   }
 
   static Future<void> notificarAlerta(String titulo, String mensaje) async {
+    if (!_activadas) return;
     final id = ++_idCounter;
     await AwesomeNotifications().createNotification(
       content: NotificationContent(

@@ -3,6 +3,7 @@ import '../service/api_service.dart';
 import '../service/reserva_service.dart';
 import '../models/pista.dart';
 import '../service/session.dart';
+import '../widgets/app_header.dart';
 import 'pista_detail_screen.dart';
 import 'search_screen.dart';
 import 'matches_screen.dart';
@@ -27,81 +28,73 @@ class _HomeScreenState extends State<HomeScreen> {
     pistas = ApiService.getPistas();
   }
 
+  String _saludo() {
+    final hora = DateTime.now().hour;
+    if (hora < 12) return "Buenos días";
+    if (hora < 20) return "Buenas tardes";
+    return "Buenas noches";
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F8FA),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         selectedItemColor: const Color(0xFF1F5DA0),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
-
+        elevation: 12,
         onTap: (index) {
-          if (index == 1) {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const MatchesScreen()));
-          }
-          if (index == 2) {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const NewsScreen()));
-          }
-          if (index == 3) {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()));
-          }
+          if (index == 1) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MatchesScreen()));
+          if (index == 2) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const NewsScreen()));
+          if (index == 3) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
         },
-
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "INICIO"),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "INICIO"),
           BottomNavigationBarItem(icon: Icon(Icons.sports_tennis), label: "PARTIDOS"),
-          BottomNavigationBarItem(icon: Icon(Icons.article), label: "NOTICIAS"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "PERFIL"),
+          BottomNavigationBarItem(icon: Icon(Icons.article_rounded), label: "NOTICIAS"),
+          BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: "PERFIL"),
         ],
       ),
 
       body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // HEADER con saludo
-            Container(
-              width: double.infinity,
-              color: const Color(0xFF1F5DA0),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  const Text(
-                    "PadelPro",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.bold,
-                    ),
+            AppHeader(
+              titulo: "${_saludo()}, ${Session.nombre ?? ""} 👋",
+              
+              extra: GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.06,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white24),
                   ),
-
-                  const SizedBox(height: 4),
-
-                  // ✅ MENSAJE DE BIENVENIDA
-                  Text(
-                    "¡Hola, ${Session.nombre ?? ""}! 👋",
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontFamily: "Poppins",
-                    ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.search, color: Colors.white70, size: 20),
+                      SizedBox(width: 10),
+                      Text(
+                        "Buscar pistas, clubes...",
+                        style: TextStyle(
+                          color: Colors.white60,
+                          fontFamily: "Poppins",
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
 
+            // CONTENIDO
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -109,86 +102,70 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    const Text(
-                      "INICIO",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    searchBar(context),
-
-                    const SizedBox(height: 30),
-
-                    const Text(
-                      "Partidos previstos",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    partidosPrevistos(),
-
-                    const SizedBox(height: 5),
-
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MisReservasScreen(),
-                            ),
-                          ).then((_) {
-                            setState(() {});
-                          });
-                        },
-                        child: const Text(
-                          "Ver otras reservas",
+                    // SECCIÓN PRÓXIMA RESERVA
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Próxima reserva",
                           style: TextStyle(
-                            color: Color(0xFF1F5DA0),
+                            fontSize: 20,
+                            fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const MisReservasScreen()),
+                            ).then((_) => setState(() {}));
+                          },
+                          child: const Text(
+                            "Ver todas",
+                            style: TextStyle(
+                              color: Color(0xFF1F5DA0),
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 12),
 
+                    _proximaReserva(),
+
+                    const SizedBox(height: 28),
+
+                    // SECCIÓN PISTAS RECOMENDADAS
                     const Text(
                       "Pistas recomendadas",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 14),
 
                     FutureBuilder<List<Pista>>(
                       future: pistas,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator(color: Color(0xFF1F5DA0)));
                         }
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Text("No hay pistas disponibles");
                         }
                         final lista = snapshot.data!.take(2).toList();
                         return Column(
-                          children: lista.map((pista) => pistaItem(pista)).toList(),
+                          children: lista.map((pista) => _pistaCard(pista)).toList(),
                         );
                       },
                     ),
@@ -204,14 +181,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget partidosPrevistos() {
-
+  Widget _proximaReserva() {
     return FutureBuilder(
       future: ReservaService.getReservasUsuario(Session.usuarioId!),
       builder: (context, snapshot) {
 
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: Color(0xFF1F5DA0)));
         }
 
         List reservas = snapshot.data!
@@ -219,97 +195,182 @@ class _HomeScreenState extends State<HomeScreen> {
             .toList();
 
         if (reservas.isEmpty) {
-          return const Text("No tienes reservas todavía");
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1F5DA0).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.calendar_today_outlined, color: Color(0xFF1F5DA0), size: 26),
+                ),
+                const SizedBox(width: 14),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Sin reservas próximas",
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      "¡Reserva una pista ahora!",
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        color: Colors.grey,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
         }
 
-        reservas.sort((a, b) {
-          return DateTime.parse(a["fechaReserva"])
-              .compareTo(DateTime.parse(b["fechaReserva"]));
-        });
-
+        reservas.sort((a, b) => DateTime.parse(a["fechaReserva"]).compareTo(DateTime.parse(b["fechaReserva"])));
         final reserva = reservas.first;
         DateTime fecha = DateTime.parse(reserva["fechaReserva"]);
 
+        const meses = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
         return Container(
           width: double.infinity,
-          height: 160,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             image: const DecorationImage(
               image: AssetImage("assets/images/image3.png"),
               fit: BoxFit.cover,
             ),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                reserva["pista"]["nombre"],
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                reserva["pista"]["club"]["nombre"],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                "${fecha.day}/${fecha.month} - ${fecha.hour}:00",
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1F5DA0).withOpacity(0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget searchBar(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SearchScreen()),
-        );
-      },
-      child: Container(
-        height: 55,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1F5DA0),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Row(
-          children: [
-            Expanded(
-              child: Text(
-                "Buscar...",
-                style: TextStyle(color: Colors.white, fontFamily: "Poppins"),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.15),
+                  Colors.black.withOpacity(0.65),
+                ],
               ),
             ),
-            Icon(Icons.search, color: Colors.white),
-          ],
-        ),
-      ),
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          reserva["pista"]["nombre"],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: "Poppins",
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        reserva["pista"]["club"]["nombre"],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${fecha.hour}:00 · 1 hora",
+                            style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // BLOQUE FECHA
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "${fecha.day}",
+                        style: const TextStyle(
+                          color: Color(0xFF1F5DA0),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      Text(
+                        meses[fecha.month - 1],
+                        style: const TextStyle(
+                          color: Color(0xFF1F5DA0),
+                          fontSize: 11,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget pistaItem(Pista pista) {
+  Widget _pistaCard(Pista pista) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PistaDetailScreen(pista: pista)),
-        );
-      },
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista))),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -317,12 +378,14 @@ class _HomeScreenState extends State<HomeScreen> {
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
               blurRadius: 12,
-              offset: const Offset(0, 6),
-            )
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
           children: [
+
+            // IMAGEN
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18),
@@ -330,12 +393,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Image.asset(
                 "assets/images/Basica1.png",
-                width: 95,
-                height: 85,
+                width: MediaQuery.of(context).size.width * 0.22,
+                height: MediaQuery.of(context).size.width * 0.22,
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(width: 15),
+
+            const SizedBox(width: 14),
+
+            // INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,22 +409,46 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     pista.nombre,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Poppins",
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    "${pista.ciudad} • ${pista.precioHora}€/h",
-                    style: const TextStyle(color: Colors.grey, fontFamily: "Poppins"),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 13, color: Colors.grey),
+                      const SizedBox(width: 3),
+                      Text(
+                        pista.ciudad,
+                        style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F5DA0).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "${pista.precioHora}€/hora",
+                      style: const TextStyle(
+                        color: Color(0xFF1F5DA0),
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+
             const Padding(
-              padding: EdgeInsets.only(right: 12),
-              child: Icon(Icons.arrow_forward_ios, size: 16),
+              padding: EdgeInsets.only(right: 14),
+              child: Icon(Icons.arrow_forward_ios_rounded, size: 15, color: Colors.grey),
             ),
           ],
         ),

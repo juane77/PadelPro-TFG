@@ -3,13 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../service/session.dart';
 import '../service/notificacion_service.dart';
+import '../utils/app_snackbar.dart';
+import '../widgets/app_header.dart';
 import 'home_screen.dart';
 import 'matches_screen.dart';
 import 'news_screen.dart';
 import 'login_screen.dart';
 import 'notificaciones_screen.dart';
+import 'ajustes_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -27,6 +31,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     cargarNoLeidas();
+    cargarFotoGuardada();
+  }
+
+  /// Carga la foto guardada en disco para este usuario
+  Future<void> cargarFotoGuardada() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
+    if (ruta != null && File(ruta).existsSync()) {
+      setState(() {
+        image = File(ruta);
+      });
+    }
   }
 
   Future<void> cargarNoLeidas() async {
@@ -40,6 +56,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
+      // Guardar la ruta en shared_preferences vinculada al usuario
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('foto_perfil_${Session.usuarioId}', picked.path);
       setState(() {
         image = File(picked.path);
       });
@@ -82,13 +101,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 final nuevoNombre = controller.text.trim();
                 if (nuevoNombre.isEmpty || nuevoNombre.length < 2) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("El nombre debe tener al menos 2 caracteres")),
-                  );
+                  AppSnackbar.aviso(context, "El nombre debe tener al menos 2 caracteres");
                   return;
                 }
                 final response = await http.put(
-                  Uri.parse("http://10.0.2.2:8080/api/usuarios/${Session.usuarioId}/nombre"),
+                  Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/${Session.usuarioId}/nombre"),
                   headers: Session.authHeaders,
                   body: jsonEncode({"nombre": nuevoNombre}),
                 );
@@ -97,13 +114,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Session.nombre = nuevoNombre;
                   });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Nombre actualizado correctamente")),
-                  );
+                  AppSnackbar.exito(context, "Nombre actualizado correctamente");
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Error al actualizar el nombre")),
-                  );
+                  AppSnackbar.error(context, "Error al actualizar el nombre");
                 }
               },
               child: const Text("Guardar"),
@@ -115,9 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void proximamente(String funcion) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$funcion — próximamente disponible")),
-    );
+    AppSnackbar.aviso(context, "$funcion — próximamente disponible");
   }
 
   @override
@@ -149,17 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            Container(
-              width: double.infinity,
-              height: 100,
-              color: const Color(0xFF1F5DA0),
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.only(left: 20),
-              child: const Text(
-                "PadelPro",
-                style: TextStyle(color: Colors.white, fontSize: 30, fontFamily: "Poppins"),
-              ),
-            ),
+            AppHeader(titulo: "Hola, ${Session.nombre ?? ""} 👋"),
 
             Expanded(
               child: SingleChildScrollView(
@@ -174,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "PERFIL",
-                        style: TextStyle(fontSize: 28, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 24, fontFamily: "Poppins", fontWeight: FontWeight.bold),
                       ),
                     ),
 
@@ -185,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         children: [
                           CircleAvatar(
-                            radius: 60,
+                            radius: MediaQuery.of(context).size.width * 0.15,
                             backgroundImage: image != null
                                 ? FileImage(image!)
                                 : const AssetImage("assets/images/profile.jpg") as ImageProvider,
@@ -240,7 +241,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.settings,
                       text: "Ajustes",
                       color: const Color(0xFF1F5DA0),
-                      onTap: () => proximamente("Ajustes"),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AjustesScreen()),
+                      ),
                     ),
 
                     const SizedBox(height: 15),
@@ -271,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           context,
           MaterialPageRoute(builder: (context) => const NotificacionesScreen()),
         );
-        cargarNoLeidas(); // recarga el contador al volver
+        cargarNoLeidas();
       },
       child: Container(
         width: double.infinity,
