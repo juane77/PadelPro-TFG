@@ -31,6 +31,15 @@ public class Pista {
     @JoinColumn(name = "id_club")
     private Club club;
 
+    @Column
+    private Double latitud;
+
+    @Column
+    private Double longitud;
+
+    @Column
+    private String direccion;
+
     protected Pista() {}
 
     public Long getId() {
@@ -51,5 +60,17 @@ public class Pista {
 
     public Club getClub() {
         return club;
+    }
+
+    public Double getLatitud() {
+        return latitud;
+    }
+
+    public Double getLongitud() {
+        return longitud;
+    }
+
+    public String getDireccion() {
+        return direccion;
     }
 }

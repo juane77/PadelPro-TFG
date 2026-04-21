@@ -12,26 +12,31 @@ class NotificacionesScreen extends StatefulWidget {
 
 class _NotificacionesScreenState extends State<NotificacionesScreen> {
 
-  late Future<List<dynamic>> notificaciones;
+  List<dynamic> noticias = [];
+  bool cargando = true;
 
   @override
   void initState() {
     super.initState();
-    notificaciones = NotificacionApi.getNotificaciones(Session.usuarioId!);
+    cargar();
   }
 
-  void recargar() {
+  Future<void> cargar() async {
+    setState(() => cargando = true);
+    final lista = await NotificacionApi.getNotificaciones(Session.usuarioId!);
     setState(() {
-      notificaciones = NotificacionApi.getNotificaciones(Session.usuarioId!);
+      noticias = lista;
+      cargando = false;
     });
   }
 
+  void recargar() => cargar();
+
   void borrarUna(int id) async {
-    final ok = await NotificacionApi.borrarNotificacion(id);
-    if (ok) {
-      recargar();
-      AppSnackbar.exito(context, "Notificación eliminada");
-    }
+    setState(() {
+      noticias.removeWhere((n) => n["id"] == id);
+    });
+    await NotificacionApi.borrarNotificacion(id);
   }
 
   void borrarTodas() async {
@@ -128,36 +133,27 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
         ],
       ),
 
-      body: FutureBuilder<List<dynamic>>(
-        future: notificaciones,
-        builder: (context, snapshot) {
-
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF1F5DA0)));
-          }
-
-          if (snapshot.data!.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.notifications_none, size: 64, color: Colors.grey.shade300),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "No tienes notificaciones",
-                    style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 15),
+      body: cargando
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1F5DA0)))
+          : noticias.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.notifications_none, size: 64, color: Colors.grey.shade300),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "No tienes notificaciones",
+                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 15),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-
-              final n = snapshot.data![index];
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: noticias.length,
+                  itemBuilder: (context, index) {
+                    final n = noticias[index];
               final tipo = n["tipo"] as String;
               final leida = n["leida"] as bool;
               final color = colorPorTipo(tipo);
@@ -186,7 +182,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                   onTap: () async {
                     if (!leida) {
                       await NotificacionApi.marcarLeida(n["id"]);
-                      recargar();
+                      cargar();
                     }
                   },
                   child: Container(
@@ -293,9 +289,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }

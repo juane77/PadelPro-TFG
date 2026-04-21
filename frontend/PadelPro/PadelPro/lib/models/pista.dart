@@ -6,6 +6,9 @@ class Pista {
   final double precioHora;
   final String clubNombre;
   final String ciudad;
+  final double? latitud;
+  final double? longitud;
+  final String? direccion;
 
   Pista({
     required this.id,
@@ -14,10 +17,12 @@ class Pista {
     required this.precioHora,
     required this.clubNombre,
     required this.ciudad,
+    this.latitud,
+    this.longitud,
+    this.direccion,
   });
 
   factory Pista.fromJson(Map<String, dynamic> json) {
-
     return Pista(
       id: json["id"],
       nombre: json["nombre"],
@@ -25,7 +30,9 @@ class Pista {
       precioHora: json["precioHora"].toDouble(),
       clubNombre: json["club"]["nombre"],
       ciudad: json["club"]["ciudad"],
+      latitud: json["latitud"]?.toDouble(),
+      longitud: json["longitud"]?.toDouble(),
+      direccion: json["direccion"],
     );
-
   }
 }

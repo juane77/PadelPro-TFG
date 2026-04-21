@@ -10,6 +10,7 @@ import 'matches_screen.dart';
 import 'news_screen.dart';
 import 'mis_reservas_screen.dart';
 import 'profile_screen.dart';
+import 'mapa_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -143,13 +144,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 28),
 
                     // SECCIÓN PISTAS RECOMENDADAS
-                    const Text(
-                      "Pistas recomendadas",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Pistas recomendadas",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const MapaScreen()),
+                          ),
+                          icon: const Icon(Icons.map_rounded, size: 16, color: Color(0xFF1F5DA0)),
+                          label: const Text(
+                            "Ver mapa",
+                            style: TextStyle(
+                              color: Color(0xFF1F5DA0),
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 14),
