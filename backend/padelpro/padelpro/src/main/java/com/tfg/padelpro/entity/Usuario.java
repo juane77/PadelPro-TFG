@@ -1,5 +1,7 @@
 package com.tfg.padelpro.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,6 +33,12 @@ public class Usuario {
     @Column(nullable = false)
     private String rol = "USER";
 
+    @Column(nullable = false)
+    private int pelotas = 100;
+
+    @Column(name = "ultimo_login")
+    private LocalDate ultimoLogin;
+
     protected Usuario() {
     }
 
@@ -40,6 +48,7 @@ public class Usuario {
         this.password = password;
         this.estado = "ACTIVO";
         this.rol = "USER";
+        this.pelotas = 100;
     }
 
     // GETTERS Y SETTERS
@@ -70,5 +79,21 @@ public class Usuario {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public int getPelotas() {
+        return pelotas;
+    }
+
+    public void setPelotas(int pelotas) {
+        this.pelotas = pelotas;
+    }
+
+    public LocalDate getUltimoLogin() {
+        return ultimoLogin;
+    }
+
+    public void setUltimoLogin(LocalDate ultimoLogin) {
+        this.ultimoLogin = ultimoLogin;
     }
 }

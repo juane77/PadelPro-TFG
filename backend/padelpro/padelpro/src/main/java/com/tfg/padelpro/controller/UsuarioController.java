@@ -1,19 +1,26 @@
 package com.tfg.padelpro.controller;
 
-import com.tfg.padelpro.dto.request.RegistroRequestDTO;
+import java.time.LocalDate;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.tfg.padelpro.dto.request.LoginRequestDTO;
+import com.tfg.padelpro.dto.request.RegistroRequestDTO;
 import com.tfg.padelpro.entity.Usuario;
 import com.tfg.padelpro.repository.UsuarioRepository;
 import com.tfg.padelpro.security.JwtUtil;
 
 import jakarta.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -72,15 +79,32 @@ public class UsuarioController {
 
         String token = jwtUtil.generateToken(u.getEmail());
 
+        // 🎾 BONUS DIARIO — 5 pelotas si no ha iniciado sesión hoy
+        LocalDate hoy = LocalDate.now();
+        if (u.getUltimoLogin() == null || !u.getUltimoLogin().equals(hoy)) {
+            u.setPelotas(u.getPelotas() + 5);
+            u.setUltimoLogin(hoy);
+            usuarioRepository.save(u);
+        }
+
         return ResponseEntity.ok(
                 Map.of(
                         "id", u.getId(),
                         "nombre", u.getNombre(),
                         "email", u.getEmail(),
                         "rol", u.getRol(),
-                        "token", token
+                        "token", token,
+                        "pelotas", u.getPelotas()
                 )
         );
+    }
+
+    // 🎾 CONSULTAR PELOTAS
+    @GetMapping("/{id}/pelotas")
+    public ResponseEntity<?> getPelotas(@PathVariable Long id) {
+        return usuarioRepository.findById(id).map(u ->
+            ResponseEntity.<Object>ok(Map.of("pelotas", u.getPelotas()))
+        ).orElse(ResponseEntity.<Object>notFound().build());
     }
 
     // 🔵 EDITAR NOMBRE

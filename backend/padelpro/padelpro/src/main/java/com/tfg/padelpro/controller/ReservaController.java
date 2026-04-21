@@ -92,8 +92,18 @@ public class ReservaController {
                     .body(Map.of("mensaje", "Solo puedes tener una reserva por día"));
         }
 
+        // 🎾 COMPROBAR PELOTAS SUFICIENTES
+        if (usuario.getPelotas() < 15) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("mensaje", "No tienes pelotas suficientes para reservar (necesitas 15)"));
+        }
+
         Reserva nueva = new Reserva(usuario, pista, dto.fechaReserva());
         Reserva guardada = reservaRepository.save(nueva);
+
+        // 🎾 RESTAR 15 PELOTAS
+        usuario.setPelotas(usuario.getPelotas() - 15);
+        usuarioRepository.save(usuario);
 
         // 🔔 NOTIFICACIÓN INFO — reserva creada
         notificacionService.info(usuario,
@@ -137,6 +147,11 @@ public class ReservaController {
 
         reserva.setEstado("CANCELADA");
         reservaRepository.save(reserva);
+
+        // 🎾 DEVOLVER 10 PELOTAS (pierden 5 por cancelar)
+        Usuario usuario = reserva.getUsuario();
+        usuario.setPelotas(usuario.getPelotas() + 10);
+        usuarioRepository.save(usuario);
 
         // 🔔 NOTIFICACIÓN IMPORTANTE — reserva cancelada por el usuario
         notificacionService.importante(reserva.getUsuario(),
