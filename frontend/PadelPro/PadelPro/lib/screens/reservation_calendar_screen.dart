@@ -83,6 +83,7 @@ class _ReservationCalendarScreenState
       if (ok) {
         setState(() {
           horasReservadas.add(hora);
+          Session.pelotas -= 15;
         });
         cargarReservasMes();
 
@@ -147,6 +148,31 @@ class _ReservationCalendarScreenState
             ),
           ],
         ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                const Text("🎾", style: TextStyle(fontSize: 14)),
+                const SizedBox(width: 4),
+                Text(
+                  "${Session.pelotas}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
 
       body: Column(

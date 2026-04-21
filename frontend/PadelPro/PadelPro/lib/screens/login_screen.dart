@@ -42,6 +42,7 @@ class LoginScreen extends StatelessWidget {
         Session.nombre = data["nombre"];
         Session.email = data["email"];
         Session.token = data["token"];
+        Session.pelotas = data["pelotas"] ?? 0;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),

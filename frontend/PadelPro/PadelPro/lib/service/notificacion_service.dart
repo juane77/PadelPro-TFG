@@ -42,4 +42,20 @@ class NotificacionApi {
       headers: Session.authHeaders,
     );
   }
+
+  static Future<bool> borrarNotificacion(int notificacionId) async {
+    final response = await http.delete(
+      Uri.parse("$baseUrl/notificaciones/$notificacionId"),
+      headers: Session.authHeaders,
+    );
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> borrarTodas(int usuarioId) async {
+    final response = await http.delete(
+      Uri.parse("$baseUrl/notificaciones/usuario/$usuarioId"),
+      headers: Session.authHeaders,
+    );
+    return response.statusCode == 200;
+  }
 }

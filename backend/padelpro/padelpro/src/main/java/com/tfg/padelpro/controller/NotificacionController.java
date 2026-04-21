@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -70,5 +71,24 @@ public class NotificacionController {
         notificacionRepository.saveAll(lista);
 
         return ResponseEntity.ok(Map.of("mensaje", "Todas las notificaciones marcadas como leídas"));
+    }
+
+    // 🗑️ BORRAR NOTIFICACIÓN
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> borrarNotificacion(@PathVariable Long id) {
+        if (!notificacionRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        notificacionRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("mensaje", "Notificación eliminada"));
+    }
+
+    // 🗑️ BORRAR TODAS LAS NOTIFICACIONES DEL USUARIO
+    @DeleteMapping("/usuario/{id}")
+    public ResponseEntity<?> borrarTodas(@PathVariable Long id) {
+        List<Notificacion> lista =
+                notificacionRepository.findByUsuarioIdOrderByFechaNotificacionDesc(id);
+        notificacionRepository.deleteAll(lista);
+        return ResponseEntity.ok(Map.of("mensaje", "Todas las notificaciones eliminadas"));
     }
 }

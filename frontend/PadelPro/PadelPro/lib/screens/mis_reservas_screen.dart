@@ -69,6 +69,7 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
       if (ok) {
         setState(() {
           reservas = ReservaService.getReservasUsuario(Session.usuarioId!);
+          Session.pelotas += 10;
         });
 
         await PushService.notificarImportante(

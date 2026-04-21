@@ -221,6 +221,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: const TextStyle(color: Colors.grey, fontSize: 16, fontFamily: "Poppins"),
                     ),
 
+                    const SizedBox(height: 16),
+
+                    // SALDO DE PELOTAS
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF1F5DA0), Color(0xFF2E7BC4)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text("🎾", style: TextStyle(fontSize: 22)),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${Session.pelotas} pelotas",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "Poppins",
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const Text(
+                                "Tu saldo actual",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontFamily: "Poppins",
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(height: 30),
 
                     profileButton(
