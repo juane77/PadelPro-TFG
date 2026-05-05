@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../service/session.dart';
 import '../service/notificacion_service.dart';
+import '../service/amistad_service.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/app_header.dart';
 import 'home_screen.dart';
@@ -14,6 +15,7 @@ import 'news_screen.dart';
 import 'login_screen.dart';
 import 'notificaciones_screen.dart';
 import 'ajustes_screen.dart';
+import 'amigos_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,12 +28,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   File? image;
   int noLeidas = 0;
+  int solicitudesPendientes = 0;
 
   @override
   void initState() {
     super.initState();
     cargarNoLeidas();
     cargarFotoGuardada();
+    cargarSolicitudesPendientes();
   }
 
   /// Carga la foto guardada en disco para este usuario
@@ -49,6 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final count = await NotificacionApi.getNoLeidas(Session.usuarioId!);
     setState(() {
       noLeidas = count;
+    });
+  }
+
+  Future<void> cargarSolicitudesPendientes() async {
+    final pendientes = await AmistadService.getSolicitudesPendientes();
+    setState(() {
+      solicitudesPendientes = pendientes.length;
     });
   }
 
@@ -274,6 +285,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 15),
 
+                    // 👥 AMIGOS CON BADGE
+                    amigosButton(),
+
+                    const SizedBox(height: 15),
+
                     // 🔔 NOTIFICACIONES CON CONTADOR
                     notificacionButton(),
 
@@ -304,6 +320,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // 👥 BOTÓN AMIGOS CON BADGE
+  Widget amigosButton() {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AmigosScreen()),
+        );
+        cargarSolicitudesPendientes();
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1F5DA0),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: ListTile(
+          leading: Stack(
+            children: [
+              const Icon(Icons.people_outline, color: Colors.white),
+              if (solicitudesPendientes > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      solicitudesPendientes > 9 ? "9+" : "$solicitudesPendientes",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          title: const Text(
+            "Amigos",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: "Poppins",
+            ),
+          ),
+          trailing: solicitudesPendientes > 0
+              ? Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "$solicitudesPendientes nueva${solicitudesPendientes > 1 ? 's' : ''}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+          onTap: null,
         ),
       ),
     );

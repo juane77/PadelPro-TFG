@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../service/partido_service.dart';
-import '../service/api_service.dart';
+import 'partido_detalle_screen.dart';
+import '../service/reserva_service.dart';
+import '../service/amistad_service.dart';
 import '../service/session.dart';
-import '../models/pista.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/app_header.dart';
 import 'home_screen.dart';
@@ -26,7 +27,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    partidos = PartidoService.getPartidosUsuario(Session.usuarioId!);
+    partidos = PartidoService.getTodosLosPartidos(Session.usuarioId!);
     _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
@@ -40,7 +41,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   void recargar() {
     setState(() {
-      partidos = PartidoService.getPartidosUsuario(Session.usuarioId!);
+      partidos = PartidoService.getTodosLosPartidos(Session.usuarioId!);
     });
     _animController.forward(from: 0);
   }
@@ -83,20 +84,35 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   }
 
   void abrirFormulario() async {
-    List<Pista> pistas = [];
+    // Cargar reservas pasadas y amigos en paralelo
+    List<dynamic> reservasPasadas = [];
+    List<dynamic> amigos = [];
+
     try {
-      pistas = await ApiService.getPistas();
+      final resultados = await Future.wait([
+        ReservaService.getReservasUsuario(Session.usuarioId!),
+        AmistadService.getAmigos(),
+      ]);
+      final todasReservas = resultados[0] as List<dynamic>;
+      // Solo reservas pasadas (ya jugadas)
+      reservasPasadas = todasReservas.where((r) {
+        final fecha = DateTime.parse(r["fechaReserva"]);
+        return fecha.isBefore(DateTime.now());
+      }).toList();
+      reservasPasadas.sort((a, b) => DateTime.parse(b["fechaReserva"]).compareTo(DateTime.parse(a["fechaReserva"])));
+      amigos = resultados[1] as List<dynamic>;
     } catch (e) {
-      AppSnackbar.error(context, "Error cargando pistas");
+      AppSnackbar.error(context, "Error cargando datos");
       return;
     }
+
     if (!mounted) return;
 
     final resultadoController = TextEditingController();
     final nivelController = TextEditingController();
     String resultadoFinal = "GANADO";
-    Pista? pistaSeleccionada;
-    DateTime fechaSeleccionada = DateTime.now();
+    dynamic reservaSeleccionada;
+    List<dynamic> amigosSeleccionados = [];
 
     await showModalBottomSheet(
       context: context,
@@ -106,6 +122,18 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+
+            // Datos de la reserva seleccionada
+            String pistaNombre = reservaSeleccionada != null
+                ? reservaSeleccionada["pista"]["nombre"]
+                : "";
+            String clubNombre = reservaSeleccionada != null
+                ? reservaSeleccionada["pista"]["club"]["nombre"]
+                : "";
+            DateTime? fechaReserva = reservaSeleccionada != null
+                ? DateTime.parse(reservaSeleccionada["fechaReserva"])
+                : null;
+
             return Padding(
               padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: MediaQuery.of(context).viewInsets.bottom + 28),
               child: SingleChildScrollView(
@@ -113,35 +141,140 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+
+                    // HANDLE
                     Center(child: Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20), decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(10)))),
+
                     const Text("Nuevo partido", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                     const SizedBox(height: 4),
-                    const Text("Registra los datos de tu partido", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13)),
+                    const Text("Selecciona una reserva y añade los detalles", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13)),
                     const SizedBox(height: 24),
 
-                    DropdownButtonFormField<Pista>(
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: "Pista",
-                        prefixIcon: const Icon(Icons.sports_tennis, color: Color(0xFF1F5DA0)),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF1F5DA0), width: 2)),
-                      ),
-                      items: pistas.map((p) => DropdownMenuItem(value: p, child: Text(p.nombre, overflow: TextOverflow.ellipsis))).toList(),
-                      onChanged: (value) => setModalState(() => pistaSeleccionada = value),
+                    // SECCIÓN 1 — SELECCIONAR RESERVA
+                    Row(
+                      children: [
+                        Container(width: 4, height: 18, decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(width: 8),
+                        const Text("¿En qué reserva jugaste?", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 15)),
+                      ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
+
+                    if (reservasPasadas.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.orange, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(child: Text("No tienes reservas pasadas. Reserva una pista primero.", style: TextStyle(fontFamily: "Poppins", fontSize: 13, color: Colors.orange))),
+                          ],
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 110,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: reservasPasadas.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 10),
+                          itemBuilder: (context, index) {
+                            final r = reservasPasadas[index];
+                            final fecha = DateTime.parse(r["fechaReserva"]);
+                            final seleccionada = reservaSeleccionada == r;
+                            const meses = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+                            return GestureDetector(
+                              onTap: () => setModalState(() => reservaSeleccionada = r),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 130,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: seleccionada ? const Color(0xFF1F5DA0) : Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: seleccionada ? const Color(0xFF1F5DA0) : Colors.grey.shade200,
+                                    width: seleccionada ? 2 : 1,
+                                  ),
+                                  boxShadow: seleccionada ? [BoxShadow(color: const Color(0xFF1F5DA0).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : [],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Icon(Icons.sports_tennis, color: seleccionada ? Colors.white70 : Colors.grey.shade400, size: 18),
+                                    Text(
+                                      r["pista"]["nombre"],
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 13, color: seleccionada ? Colors.white : Colors.black87),
+                                    ),
+                                    Text(
+                                      "${fecha.day} ${meses[fecha.month - 1]} · ${fecha.hour}:00h",
+                                      style: TextStyle(fontFamily: "Poppins", fontSize: 11, color: seleccionada ? Colors.white70 : Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                    // INFO RESERVA SELECCIONADA
+                    if (reservaSeleccionada != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1F5DA0).withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle_rounded, color: Color(0xFF1F5DA0), size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "$pistaNombre · $clubNombre · ${fechaReserva!.day}/${fechaReserva.month}/${fechaReserva.year} ${fechaReserva.hour}:00h",
+                                style: const TextStyle(fontFamily: "Poppins", fontSize: 12, color: Color(0xFF1F5DA0), fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    // SECCIÓN 2 — RESULTADO
+                    Row(
+                      children: [
+                        Container(width: 4, height: 18, decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(width: 8),
+                        const Text("Resultado del partido", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 15)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
                     TextField(
                       controller: resultadoController,
                       decoration: InputDecoration(
-                        labelText: "Resultado (ej: 6-2 · 1-6)",
+                        labelText: "Marcador (ej: 6-2 · 1-6)",
                         prefixIcon: const Icon(Icons.scoreboard_outlined, color: Color(0xFF1F5DA0)),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF1F5DA0), width: 2)),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     TextField(
                       controller: nivelController,
@@ -153,10 +286,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF1F5DA0), width: 2)),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    const Text("Resultado", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 14)),
-                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -204,28 +335,73 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
 
-                    GestureDetector(
-                      onTap: () async {
-                        DateTime? picked = await showDatePicker(context: context, initialDate: fechaSeleccionada, firstDate: DateTime(2020), lastDate: DateTime.now());
-                        if (picked != null) setModalState(() => fechaSeleccionada = picked);
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                        decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(14)),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_today_rounded, color: Color(0xFF1F5DA0), size: 20),
-                            const SizedBox(width: 12),
-                            Text("${fechaSeleccionada.day}/${fechaSeleccionada.month}/${fechaSeleccionada.year}", style: const TextStyle(fontFamily: "Poppins", fontSize: 15)),
-                          ],
-                        ),
+                    // SECCIÓN 3 — AMIGOS
+                    if (amigos.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Container(width: 4, height: 18, decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(2))),
+                          const SizedBox(width: 8),
+                          const Text("¿Quién jugó contigo?", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 15)),
+                        ],
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      const Text("Selecciona los amigos que participaron", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 12)),
+                      const SizedBox(height: 12),
+
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: amigos.map((amigo) {
+                          final seleccionado = amigosSeleccionados.any((a) => a["id"] == amigo["id"]);
+                          final inicial = (amigo["nombre"] as String)[0].toUpperCase();
+                          return GestureDetector(
+                            onTap: () {
+                              setModalState(() {
+                                if (seleccionado) {
+                                  amigosSeleccionados.removeWhere((a) => a["id"] == amigo["id"]);
+                                } else {
+                                  amigosSeleccionados.add(amigo);
+                                }
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: seleccionado ? const Color(0xFF1F5DA0) : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: seleccionado ? const Color(0xFF1F5DA0) : Colors.grey.shade300),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: seleccionado ? Colors.white.withOpacity(0.3) : const Color(0xFF1F5DA0).withOpacity(0.1),
+                                    child: Text(inicial, style: TextStyle(color: seleccionado ? Colors.white : const Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 11)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    amigo["nombre"],
+                                    style: TextStyle(color: seleccionado ? Colors.white : Colors.black87, fontFamily: "Poppins", fontWeight: FontWeight.w600, fontSize: 13),
+                                  ),
+                                  if (seleccionado) ...[
+                                    const SizedBox(width: 6),
+                                    const Icon(Icons.check_rounded, color: Colors.white, size: 14),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+
                     const SizedBox(height: 28),
 
+                    // BOTÓN GUARDAR
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -237,20 +413,41 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                           elevation: 0,
                         ),
                         onPressed: () async {
-                          if (pistaSeleccionada == null || resultadoController.text.isEmpty || nivelController.text.isEmpty) {
-                            AppSnackbar.aviso(context, "Rellena todos los campos");
+                          if (reservaSeleccionada == null) {
+                            AppSnackbar.aviso(context, "Selecciona la reserva en la que jugaste");
+                            return;
+                          }
+                          if (resultadoController.text.isEmpty || nivelController.text.isEmpty) {
+                            AppSnackbar.aviso(context, "Rellena el marcador y el nivel");
                             return;
                           }
                           double? nivel = double.tryParse(nivelController.text.replaceAll(",", "."));
                           if (nivel == null) { AppSnackbar.aviso(context, "El nivel no es válido"); return; }
+
+                          final pistaId = reservaSeleccionada["pista"]["id"] as int;
+                          final reservaId = reservaSeleccionada["id"] as int;
+                          final fechaPartido = DateTime.parse(reservaSeleccionada["fechaReserva"]);
+                          final amigosIds = amigosSeleccionados.map((a) => a["id"].toString()).join(",");
+
                           try {
                             bool ok = await PartidoService.registrarPartido(
-                              usuarioId: Session.usuarioId!, pistaId: pistaSeleccionada!.id,
-                              resultado: resultadoController.text, nivelMedio: nivel,
-                              resultadoFinal: resultadoFinal, fechaPartido: fechaSeleccionada,
+                              usuarioId: Session.usuarioId!,
+                              pistaId: pistaId,
+                              reservaId: reservaId,
+                              resultado: resultadoController.text,
+                              nivelMedio: nivel,
+                              resultadoFinal: resultadoFinal,
+                              fechaPartido: fechaPartido,
+                              amigosIds: amigosIds,
                             );
-                            if (ok) { Navigator.pop(context); recargar(); AppSnackbar.exito(context, "Partido registrado"); }
-                          } catch (e) { AppSnackbar.error(context, e.toString().replaceAll("Exception: ", "")); }
+                            if (ok) {
+                              Navigator.pop(context);
+                              recargar();
+                              AppSnackbar.exito(context, "Partido registrado correctamente ✓");
+                            }
+                          } catch (e) {
+                            AppSnackbar.error(context, e.toString().replaceAll("Exception: ", ""));
+                          }
                         },
                         child: const Text("Guardar partido", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                       ),
@@ -361,16 +558,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                               padding: const EdgeInsets.only(top: 60),
                               child: Column(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
-                                    child: Icon(Icons.sports_tennis, size: 48, color: Colors.grey.shade400),
-                                  ),
+                                  Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle), child: Icon(Icons.sports_tennis, size: 48, color: Colors.grey.shade400)),
                                   const SizedBox(height: 16),
-                                  Text(
-                                    mostrarPerdidos ? "No hay partidos registrados" : "No hay partidos ganados",
-                                    style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 15),
-                                  ),
+                                  Text(mostrarPerdidos ? "No hay partidos registrados" : "No hay partidos ganados", style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 15)),
                                   const SizedBox(height: 8),
                                   Text("Pulsa + para registrar uno", style: TextStyle(color: Colors.grey.shade400, fontFamily: "Poppins", fontSize: 13)),
                                 ],
@@ -384,7 +574,13 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) => Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
-                                  child: _matchCard(lista[index], index),
+                                  child: GestureDetector(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => PartidoDetalleScreen(partido: lista[index])),
+                                    ),
+                                    child: _matchCard(lista[index], index),
+                                  ),
                                 ),
                                 childCount: lista.length,
                               ),
@@ -410,32 +606,14 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A4F8A), Color(0xFF1F5DA0), Color(0xFF2874C8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: const LinearGradient(colors: [Color(0xFF1A4F8A), Color(0xFF1F5DA0), Color(0xFF2874C8)], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [BoxShadow(color: const Color(0xFF1F5DA0).withOpacity(0.35), blurRadius: 20, offset: const Offset(0, 8))],
       ),
       child: Stack(
         children: [
-          // Círculos decorativos de fondo
-          Positioned(
-            right: -20, top: -20,
-            child: Container(
-              width: 120, height: 120,
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
-            ),
-          ),
-          Positioned(
-            right: 30, bottom: -30,
-            child: Container(
-              width: 80, height: 80,
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle),
-            ),
-          ),
-
+          Positioned(right: -20, top: -20, child: Container(width: 120, height: 120, decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle))),
+          Positioned(right: 30, bottom: -30, child: Container(width: 80, height: 80, decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle))),
           Padding(
             padding: const EdgeInsets.all(22),
             child: Column(
@@ -443,11 +621,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                      child: const Text("Rendimiento global", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 12)),
-                    ),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)), child: const Text("Rendimiento global", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 12))),
                     const Spacer(),
                     const Icon(Icons.insights_rounded, color: Colors.white54, size: 20),
                   ],
@@ -456,10 +630,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      "${porcentaje.toStringAsFixed(0)}%",
-                      style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: 52, fontWeight: FontWeight.bold, height: 1),
-                    ),
+                    Text("${porcentaje.toStringAsFixed(0)}%", style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: 52, fontWeight: FontWeight.bold, height: 1)),
                     const SizedBox(width: 12),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -474,40 +645,21 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Barra de progreso personalizada
+                Stack(
+                  children: [
+                    Container(height: 8, decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(4))),
+                    FractionallySizedBox(
+                      widthFactor: total > 0 ? ganados / total : 0,
+                      child: Container(height: 8, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Colors.white, Color(0xFFB3D1FF)]), borderRadius: BorderRadius.circular(4))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: [
-                              Container(height: 8, decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(4))),
-                              FractionallySizedBox(
-                                widthFactor: total > 0 ? ganados / total : 0,
-                                child: Container(
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [Colors.white, Color(0xFFB3D1FF)]),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              _miniChip("✅ ${stats['ganados']} ganados"),
-                              const SizedBox(width: 8),
-                              _miniChip("❌ ${stats['perdidos']} perdidos"),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    _miniChip("✅ ${stats['ganados']} ganados"),
+                    const SizedBox(width: 8),
+                    _miniChip("❌ ${stats['perdidos']} perdidos"),
                   ],
                 ),
               ],
@@ -541,18 +693,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   Widget _statTile(IconData icon, String label, String valor, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-            child: Icon(icon, color: color, size: 18),
-          ),
+          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 18)),
           const SizedBox(height: 8),
           Text(valor, style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
@@ -577,6 +721,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     final Color bgColor = ganado ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
     DateTime fecha = DateTime.parse(partido["fechaPartido"]);
     const meses = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+    final bool vinculado = partido["reservaVinculada"] == true;
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -584,23 +729,14 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       curve: Curves.easeOut,
       builder: (context, value, child) => Opacity(opacity: value, child: Transform.translate(offset: Offset(0, 20 * (1 - value)), child: child)),
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4))],
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4))]),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Row(
             children: [
-              // BORDE LATERAL DE COLOR
-              Container(width: 5, height: 80, color: color),
-
-              // BLOQUE FECHA
+              Container(width: 5, height: 90, color: color),
               Container(
-                width: 56,
-                height: 80,
-                color: bgColor,
+                width: 56, height: 90, color: bgColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -609,32 +745,32 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   ],
                 ),
               ),
-
               const SizedBox(width: 14),
-
-              // INFO CENTRAL
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        partido["resultado"],
-                        style: TextStyle(color: color, fontSize: 20, fontFamily: "Poppins", fontWeight: FontWeight.bold, height: 1.1),
+                      Row(
+                        children: [
+                          Text(partido["resultado"], style: TextStyle(color: color, fontSize: 20, fontFamily: "Poppins", fontWeight: FontWeight.bold, height: 1.1)),
+                          if (vinculado) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: const Color(0xFF1F5DA0).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                              child: const Text("✓ Verificado", style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontSize: 9, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 5),
                       Row(
                         children: [
                           Icon(Icons.location_on_outlined, size: 12, color: Colors.grey.shade400),
                           const SizedBox(width: 3),
-                          Expanded(
-                            child: Text(
-                              "${partido["club"]}",
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 12),
-                            ),
-                          ),
+                          Expanded(child: Text("${partido["club"]}", overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 12))),
                         ],
                       ),
                       const SizedBox(height: 3),
@@ -649,17 +785,12 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   ),
                 ),
               ),
-
-              // BADGE
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
-                  child: Text(
-                    ganado ? "WIN" : "LOSS",
-                    style: TextStyle(color: color, fontWeight: FontWeight.bold, fontFamily: "Poppins", fontSize: 13, letterSpacing: 0.5),
-                  ),
+                  child: Text(ganado ? "WIN" : "LOSS", style: TextStyle(color: color, fontWeight: FontWeight.bold, fontFamily: "Poppins", fontSize: 13, letterSpacing: 0.5)),
                 ),
               ),
             ],
