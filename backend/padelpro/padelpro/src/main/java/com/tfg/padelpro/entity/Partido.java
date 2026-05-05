@@ -28,35 +28,47 @@ public class Partido {
     @JoinColumn(name = "id_pista", nullable = false)
     private Pista pista;
 
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "id_reserva", nullable = true)
+    private Reserva reserva;
+
     @Column(nullable = false)
-    private String resultado; // ej: "6-2 · 1-6 · 7-6"
+    private String resultado;
 
     @Column(name = "nivel_medio", nullable = false)
     private Double nivelMedio;
 
     @Column(nullable = false)
-    private String resultado_final; // "GANADO" o "PERDIDO"
+    private String resultado_final;
 
     @Column(name = "fecha_partido", nullable = false)
     private LocalDateTime fechaPartido;
 
+    // Amigos que jugaron (guardado como string de IDs separados por coma)
+    @Column(name = "amigos_ids")
+    private String amigosIds;
+
     protected Partido() {}
 
-    public Partido(Usuario usuario, Pista pista, String resultado,
-                   Double nivelMedio, String resultado_final, LocalDateTime fechaPartido) {
+    public Partido(Usuario usuario, Pista pista, Reserva reserva, String resultado,
+                   Double nivelMedio, String resultado_final, LocalDateTime fechaPartido, String amigosIds) {
         this.usuario = usuario;
         this.pista = pista;
+        this.reserva = reserva;
         this.resultado = resultado;
         this.nivelMedio = nivelMedio;
         this.resultado_final = resultado_final;
         this.fechaPartido = fechaPartido;
+        this.amigosIds = amigosIds;
     }
 
     public Long getId() { return id; }
     public Usuario getUsuario() { return usuario; }
     public Pista getPista() { return pista; }
+    public Reserva getReserva() { return reserva; }
     public String getResultado() { return resultado; }
     public Double getNivelMedio() { return nivelMedio; }
     public String getResultado_final() { return resultado_final; }
     public LocalDateTime getFechaPartido() { return fechaPartido; }
+    public String getAmigosIds() { return amigosIds; }
 }

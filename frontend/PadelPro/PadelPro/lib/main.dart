@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'screens/splash_screen.dart';
 import 'service/notification_push_service.dart';
@@ -11,6 +12,13 @@ void main() async {
 
   // Cargar ajustes guardados
   await AppSettings().cargar();
+
+  // Ocultar navigation bar y mostrar status bar
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
 
   // Despertar Render en segundo plano
   _wakeUpServer();

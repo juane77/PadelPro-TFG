@@ -16,6 +16,8 @@ public record PartidoRequestDTO(
         @NotNull(message = "El pistaId es obligatorio")
         Long pistaId,
 
+        Long reservaId, // opcional - vincula el partido a una reserva real
+
         @NotBlank(message = "El resultado es obligatorio")
         String resultado,
 
@@ -29,5 +31,7 @@ public record PartidoRequestDTO(
         String resultadoFinal,
 
         @NotNull(message = "La fecha del partido es obligatoria")
-        LocalDateTime fechaPartido
+        LocalDateTime fechaPartido,
+
+        String amigosIds // opcional - IDs de amigos separados por coma: "2,5,8"
 ) {}

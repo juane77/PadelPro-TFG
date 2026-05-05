@@ -1,20 +1,28 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import '../service/session.dart';
 
 class AppHeader extends StatelessWidget {
 
   final String titulo;
   final Widget? extra;
+  final File? foto;
 
   const AppHeader({
     super.key,
     required this.titulo,
     this.extra,
+    this.foto,
   });
 
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final h = MediaQuery.of(context).size.height;
+
+    final inicial = (Session.nombre != null && Session.nombre!.isNotEmpty)
+        ? Session.nombre![0].toUpperCase()
+        : "?";
 
     return Container(
       width: double.infinity,
@@ -29,16 +37,42 @@ class AppHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "PadelPro",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: (w * 0.065).clamp(20.0, 30.0),
-              fontFamily: "Poppins",
-              fontWeight: FontWeight.bold,
-            ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "PadelPro",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: (w * 0.065).clamp(20.0, 30.0),
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              // AVATAR
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.white.withOpacity(0.25),
+                backgroundImage: foto != null ? FileImage(foto!) : null,
+                child: foto == null
+                    ? Text(
+                        inicial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      )
+                    : null,
+              ),
+            ],
           ),
+
           SizedBox(height: h * 0.005),
+
           Text(
             titulo,
             style: TextStyle(
@@ -47,6 +81,7 @@ class AppHeader extends StatelessWidget {
               fontFamily: "Poppins",
             ),
           ),
+
           if (extra != null) ...[
             SizedBox(height: h * 0.018),
             extra!,
