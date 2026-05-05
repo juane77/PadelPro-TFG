@@ -19,6 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Pista> resultados = [];
   bool cargando = false;
   bool buscado = false;
+  int _limite = 20;
 
   void buscar() async {
     setState(() {
@@ -41,6 +42,7 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       resultados = pistas;
       cargando = false;
+      _limite = 20;
     });
   }
 
@@ -51,6 +53,7 @@ class _SearchScreenState extends State<SearchScreen> {
       tipoSeleccionado = null;
       resultados = [];
       buscado = false;
+      _limite = 20;
     });
   }
 
@@ -342,9 +345,32 @@ class _SearchScreenState extends State<SearchScreen> {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: resultados.length,
+            itemCount: resultados.take(_limite).length + (resultados.length > _limite ? 1 : 0),
             itemBuilder: (context, index) {
-              final pista = resultados[index];
+              final visibles = resultados.take(_limite).toList();
+
+              // BOTÓN MOSTRAR MÁS
+              if (index == visibles.length) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1F5DA0),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: () => setState(() => _limite += 20),
+                    icon: const Icon(Icons.expand_more_rounded),
+                    label: Text(
+                      "Mostrar más (${resultados.length - _limite} restantes)",
+                      style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+              }
+
+              final pista = visibles[index];
               return GestureDetector(
                 onTap: () {
                   Navigator.push(

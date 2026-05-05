@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../service/api_service.dart';
 import '../service/reserva_service.dart';
 import '../models/pista.dart';
@@ -22,11 +24,38 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Pista>> pistas;
+  Position? _posicion;
+
+  double _distancia(double lat1, double lng1, double lat2, double lng2) {
+    const r = 6371.0;
+    final dLat = (lat2 - lat1) * pi / 180;
+    final dLng = (lng2 - lng1) * pi / 180;
+    final a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) *
+        sin(dLng / 2) * sin(dLng / 2);
+    return r * 2 * atan2(sqrt(a), sqrt(1 - a));
+  }
 
   @override
   void initState() {
     super.initState();
     pistas = ApiService.getPistas();
+    _obtenerUbicacion();
+  }
+
+  Future<void> _obtenerUbicacion() async {
+    try {
+      final permiso = await Geolocator.checkPermission();
+      if (permiso == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+      ).timeout(const Duration(seconds: 8));
+      setState(() => _posicion = pos);
+    } catch (_) {
+      // Si no obtiene ubicación muestra las pistas sin ordenar
+    }
   }
 
   String _saludo() {
@@ -185,9 +214,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Text("No hay pistas disponibles");
                         }
-                        final lista = snapshot.data!.take(2).toList();
+                        final lista = snapshot.data!
+                            .where((p) => p.latitud != null && p.longitud != null)
+                            .toList();
+
+                        if (_posicion != null) {
+                          lista.sort((a, b) {
+                            final dA = _distancia(_posicion!.latitude, _posicion!.longitude, a.latitud!, a.longitud!);
+                            final dB = _distancia(_posicion!.latitude, _posicion!.longitude, b.latitud!, b.longitud!);
+                            return dA.compareTo(dB);
+                          });
+                        }
+
+                        final cercanas = lista.take(3).toList();
                         return Column(
-                          children: lista.map((pista) => _pistaCard(pista)).toList(),
+                          children: cercanas.map((pista) => _pistaCard(pista)).toList(),
                         );
                       },
                     ),
