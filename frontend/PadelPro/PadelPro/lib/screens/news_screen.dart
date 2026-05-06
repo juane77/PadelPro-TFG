@@ -17,6 +17,8 @@ class NewsScreen extends StatefulWidget {
 class _NewsScreenState extends State<NewsScreen> {
 
   static const String _apiKey = "fa4f3a36c32c857fe26640fa9de56f77";
+  // En web usamos el proxy del backend para evitar CORS
+  static const bool _esWeb = bool.fromEnvironment('dart.library.html');
 
   List<dynamic> noticias = [];
   bool cargando = true;
@@ -37,12 +39,9 @@ class _NewsScreenState extends State<NewsScreen> {
     try {
       final response = await http.get(
         Uri.parse(
-          "https://gnews.io/api/v4/search"
-          "?q=padel"
-          "&lang=es"
-          "&max=20"
-          "&sortby=publishedAt"
-          "&apikey=$_apiKey",
+          _esWeb
+            ? "https://padelpro-tfg.onrender.com/api/noticias"
+            : "https://gnews.io/api/v4/search?q=padel&lang=es&max=20&sortby=publishedAt&apikey=$_apiKey",
         ),
       ).timeout(const Duration(seconds: 15));
 

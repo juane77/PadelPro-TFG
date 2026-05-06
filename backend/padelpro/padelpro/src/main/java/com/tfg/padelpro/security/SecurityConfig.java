@@ -64,6 +64,7 @@ public class SecurityConfig {
                     "/api/usuarios/registrar",
                     "/api/pistas",
                     "/api/pistas/**",
+                    "/api/noticias",
                     // Swagger
                     "/docs",
                     "/docs/**",
