@@ -8,14 +8,13 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     :root{
-      --primary:#1F5DA0;
-      --primary-dark:#1A4F8A;
-      --primary-light:#E8F0FB;
+      --primary:#1F5DA0;--primary-dark:#1A4F8A;--primary-light:#E8F0FB;
       --gradient:linear-gradient(135deg,#1A4F8A 0%,#2874C8 100%);
       --success:#2E7D32;--success-bg:#E8F5E9;
       --danger:#C62828;--danger-bg:#FFEBEE;
-      --bg:#F0F4F8;--white:#fff;
-      --text:#0F172A;--muted:#64748B;
+      --warning:#E65100;--warning-bg:#FFF3E0;
+      --purple:#7C3AED;--purple-bg:#F3E8FF;
+      --bg:#F0F4F8;--white:#fff;--text:#0F172A;--muted:#64748B;
       --border:#E2E8F0;
       --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.06);
       --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
@@ -24,20 +23,12 @@
     body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
     /* LOGIN */
-    #login-screen{
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
-      background:var(--gradient);position:relative;overflow:hidden;
-    }
+    #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--gradient);position:relative;overflow:hidden}
     #login-screen::before{content:'';position:absolute;width:600px;height:600px;background:rgba(255,255,255,0.04);border-radius:50%;top:-200px;right:-200px}
     #login-screen::after{content:'';position:absolute;width:400px;height:400px;background:rgba(255,255,255,0.04);border-radius:50%;bottom:-150px;left:-100px}
     .login-card{background:white;border-radius:28px;padding:48px;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,0.25);position:relative;z-index:1}
     .login-logo{text-align:center;margin-bottom:36px}
-
-    /* ===== AQUÍ TU LOGO ===== */
-    /* Cambia el src de esta imagen por tu logo */
     .login-logo img{width:160px;height:auto;margin-bottom:12px}
-    /* Si el logo es oscuro y no se ve sobre fondo blanco, añade: filter:invert(1) */
-
     .login-logo p{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
     .form-group{margin-bottom:18px}
     .form-group label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px}
@@ -47,20 +38,14 @@
     .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(31,93,160,0.4)}
     .login-error{color:var(--danger);font-size:13px;text-align:center;margin-top:14px;display:none;font-weight:500}
 
-    /* LAYOUT */
-    #dashboard{display:none;min-height:100vh}
-
     /* SIDEBAR */
+    #dashboard{display:none;min-height:100vh}
     .sidebar{width:272px;background:var(--gradient);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
     .sidebar-top{padding:28px 20px 24px;border-bottom:1px solid rgba(255,255,255,0.1)}
-
-    /* ===== LOGO EN SIDEBAR ===== */
-    /* Mismo src que el de arriba — el logo sobre fondo azul queda blanco automáticamente con filter */
-    .sidebar-logo img{width:130px;height:auto;filter:brightness(0) invert(1)}
-
-    .sidebar-divider{width:1px;height:36px;background:rgba(255,255,255,0.2);margin:0 14px}
+    .sidebar-logo-wrap{display:flex;align-items:center;gap:14px}
+    .sidebar-logo-wrap img{width:120px;filter:brightness(0) invert(1)}
+    .sidebar-divider{width:1px;height:36px;background:rgba(255,255,255,0.2)}
     .sidebar-label{color:rgba(255,255,255,0.5);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;line-height:1.4}
-    .sidebar-logo-wrap{display:flex;align-items:center}
     .sidebar-section{padding:20px 12px 8px}
     .sidebar-section-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;padding:0 12px;margin-bottom:6px}
     .nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-sm);color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;margin-bottom:2px;font-size:14px;font-weight:500}
@@ -76,6 +61,7 @@
     .user-role{color:rgba(255,255,255,0.5);font-size:11px;margin-top:1px}
     .btn-logout{background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:16px;padding:4px;border-radius:6px;transition:all 0.2s;flex-shrink:0}
     .btn-logout:hover{color:white;background:rgba(255,255,255,0.1)}
+    .club-badge{background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;margin:0 12px 12px;text-align:center;color:rgba(255,255,255,0.8);font-size:12px;font-weight:600}
 
     /* MAIN */
     .main{margin-left:272px;padding:32px;flex:1}
@@ -87,13 +73,32 @@
     .refresh-btn{display:flex;align-items:center;gap:6px;padding:9px 16px;background:white;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;color:var(--muted);cursor:pointer;transition:all 0.2s}
     .refresh-btn:hover{border-color:var(--primary);color:var(--primary)}
 
-    /* STATS */
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+    /* STATS GRID */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stats-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
     .stat-card{background:white;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;transition:transform 0.2s;border:1px solid var(--border)}
     .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .stat-card.full{flex-direction:column;align-items:flex-start;gap:8px}
     .stat-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
     .stat-value{font-size:30px;font-weight:800;line-height:1}
     .stat-label{color:var(--muted);font-size:12px;font-weight:500;margin-top:4px}
+    .stat-highlight{font-size:18px;font-weight:700;margin-top:4px}
+
+    /* CLUB DASHBOARD */
+    .club-header{background:var(--gradient);border-radius:var(--radius);padding:28px;margin-bottom:24px;color:white;position:relative;overflow:hidden}
+    .club-header::after{content:'🎾';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:80px;opacity:0.1}
+    .club-header h2{font-size:22px;font-weight:800;margin-bottom:4px}
+    .club-header p{color:rgba(255,255,255,0.7);font-size:14px}
+    .club-stats-row{display:flex;gap:24px;margin-top:16px}
+    .club-stat{text-align:center}
+    .club-stat .val{font-size:28px;font-weight:800}
+    .club-stat .lbl{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px}
+
+    /* OCUPACION */
+    .ocupacion-bar{margin-bottom:12px}
+    .ocupacion-bar .label{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+    .bar-track{background:var(--border);border-radius:4px;height:8px;overflow:hidden}
+    .bar-fill{height:100%;background:var(--gradient);border-radius:4px;transition:width 0.8s ease}
 
     /* CARDS */
     .card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
@@ -101,6 +106,7 @@
     .card-title{font-size:16px;font-weight:700}
     .card-subtitle{color:var(--muted);font-size:13px;margin-top:2px}
     .overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .three-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 
     /* SEARCH */
     .search-wrap{position:relative}
@@ -121,6 +127,7 @@
     .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
     .badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
     .badge-admin{background:var(--primary-light);color:var(--primary)}.badge-admin::before{background:var(--primary)}
+    .badge-superadmin{background:var(--purple-bg);color:var(--purple)}.badge-superadmin::before{background:var(--purple)}
     .badge-user{background:#F1F5F9;color:#64748B}.badge-user::before{background:#94A3B8}
     .badge-activa{background:var(--success-bg);color:var(--success)}.badge-activa::before{background:var(--success)}
     .badge-cancelada{background:var(--danger-bg);color:var(--danger)}.badge-cancelada::before{background:var(--danger)}
@@ -138,7 +145,6 @@
     .empty{text-align:center;padding:56px 20px;color:var(--muted)}
     .empty-icon{font-size:44px;margin-bottom:14px;opacity:0.5}
     .empty p{font-size:15px;font-weight:500}
-    .empty span{font-size:13px;display:block;margin-top:4px;opacity:0.7}
     .loading-wrap{text-align:center;padding:48px;color:var(--muted)}
     .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 14px}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -151,23 +157,19 @@
     .modal h3{font-size:20px;font-weight:800;margin-bottom:8px}
     .modal p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:28px}
     .modal-actions{display:flex;gap:10px;justify-content:flex-end}
-    .btn-cancel{padding:10px 20px;background:#F1F5F9;color:var(--muted);border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
-    .btn-cancel:hover{background:var(--border)}
+    .btn-cancel{padding:10px 20px;background:#F1F5F9;color:var(--muted);border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
     .btn-confirm{padding:10px 20px;background:var(--danger);color:white;border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(198,40,40,0.3)}
-    .btn-confirm:hover{background:#B71C1C}
 
     /* TOAST */
-    .toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:12px;color:white;font-weight:600;font-size:14px;font-family:'Poppins',sans-serif;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg)}
+    .toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:12px;color:white;font-weight:600;font-size:14px;font-family:'Poppins',sans-serif;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:var(--shadow-lg)}
     .toast.show{transform:translateY(0);opacity:1}
     .toast-success{background:var(--success)}
     .toast-error{background:var(--danger)}
 
-    /* FILTRO SELECT */
-    .filter-select{padding:9px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:13px;outline:none;cursor:pointer;transition:border-color 0.2s}
+    .filter-select{padding:9px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:'Poppins',sans-serif;font-size:13px;outline:none;cursor:pointer}
     .filter-select:focus{border-color:var(--primary)}
 
-    @media(max-width:1280px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:900px){.overview-grid{grid-template-columns:1fr}}
+    @media(max-width:1280px){.stats-grid,.stats-grid-2{grid-template-columns:repeat(2,1fr)}.three-grid{grid-template-columns:1fr 1fr}.overview-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -176,9 +178,6 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <!-- ===== PON TU LOGO AQUÍ ===== -->
-      <!-- Si lo pones en la misma carpeta: src="logo.png" -->
-      <!-- Si el logo es blanco/oscuro sobre fondo claro añade style="filter:invert(1)" -->
       <img src="logo.png" alt="PadelPro">
       <p>Panel de Administración</p>
     </div>
@@ -200,22 +199,19 @@
   <aside class="sidebar">
     <div class="sidebar-top">
       <div class="sidebar-logo-wrap">
-        <!-- ===== LOGO EN SIDEBAR ===== -->
-        <!-- Mismo archivo — el filter lo pone blanco automáticamente sobre el fondo azul -->
-        <img src="logo.png" alt="PadelPro" style="width:120px;filter:brightness(0) invert(1)">
+        <img src="logo.png" alt="PadelPro">
         <div class="sidebar-divider"></div>
         <div class="sidebar-label">Admin<br>Panel</div>
       </div>
     </div>
-
+    <div id="club-badge-wrap"></div>
     <div class="sidebar-section">
       <div class="sidebar-section-label">General</div>
       <div class="nav-item active" onclick="showPage('overview')" id="nav-overview">
         <div class="nav-icon">📊</div> Resumen
       </div>
     </div>
-
-    <div class="sidebar-section">
+    <div class="sidebar-section" id="nav-section-gestion">
       <div class="sidebar-section-label">Gestión</div>
       <div class="nav-item" onclick="showPage('usuarios')" id="nav-usuarios">
         <div class="nav-icon">👥</div> Usuarios
@@ -224,13 +220,12 @@
         <div class="nav-icon">📅</div> Reservas
       </div>
     </div>
-
     <div class="sidebar-footer">
       <div class="user-card">
         <div class="user-avatar" id="sidebar-avatar">A</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-name">Administrador</div>
-          <div class="user-role">🔐 ADMIN</div>
+          <div class="user-name" id="sidebar-name">Admin</div>
+          <div class="user-role" id="sidebar-role">—</div>
         </div>
         <button class="btn-logout" onclick="logout()" title="Cerrar sesión">⏻</button>
       </div>
@@ -239,35 +234,21 @@
 
   <main class="main">
 
-    <!-- OVERVIEW -->
+    <!-- OVERVIEW SUPERADMIN -->
     <div class="page active" id="page-overview">
       <div class="topbar">
         <div class="topbar-left">
-          <h1>Resumen general</h1>
+          <h1 id="overview-title">Resumen global</h1>
           <p id="overview-date"></p>
         </div>
         <button class="refresh-btn" onclick="loadAll()">↻ Actualizar</button>
       </div>
-      <div class="stats-grid" id="stats-grid">
-        <div class="loading-wrap"><div class="spinner"></div>Cargando estadísticas...</div>
-      </div>
-      <div class="overview-grid">
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">📅 Últimas reservas</div><div class="card-subtitle">Las 5 más recientes</div></div>
-          </div>
-          <div class="table-wrap" id="overview-reservas"><div class="loading-wrap"><div class="spinner"></div></div></div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">👥 Últimos usuarios</div><div class="card-subtitle">Jugadores recientes</div></div>
-          </div>
-          <div class="table-wrap" id="overview-usuarios"><div class="loading-wrap"><div class="spinner"></div></div></div>
-        </div>
+      <div id="overview-content">
+        <div class="loading-wrap"><div class="spinner"></div>Cargando...</div>
       </div>
     </div>
 
-    <!-- USUARIOS -->
+    <!-- USUARIOS (solo SUPERADMIN) -->
     <div class="page" id="page-usuarios">
       <div class="topbar">
         <div class="topbar-left"><h1>Usuarios</h1><p>Gestiona los jugadores registrados en PadelPro</p></div>
@@ -278,14 +259,14 @@
           <div><div class="card-title">Todos los usuarios</div><div class="card-subtitle" id="usuarios-count">—</div></div>
           <div class="search-wrap"><input placeholder="Buscar usuario..." oninput="filtrarUsuarios(this.value)"></div>
         </div>
-        <div class="table-wrap" id="tabla-usuarios"><div class="loading-wrap"><div class="spinner"></div>Cargando...</div></div>
+        <div class="table-wrap" id="tabla-usuarios"><div class="loading-wrap"><div class="spinner"></div></div></div>
       </div>
     </div>
 
     <!-- RESERVAS -->
     <div class="page" id="page-reservas">
       <div class="topbar">
-        <div class="topbar-left"><h1>Reservas</h1><p>Gestiona todas las reservas de la plataforma</p></div>
+        <div class="topbar-left"><h1>Reservas</h1><p id="reservas-subtitle">Gestiona todas las reservas</p></div>
         <div style="display:flex;gap:10px;align-items:center">
           <select id="filtro-estado" class="filter-select" onchange="filtrarReservas(document.querySelector('#page-reservas .search-wrap input').value)">
             <option value="">Todos los estados</option>
@@ -297,17 +278,16 @@
       </div>
       <div class="card">
         <div class="card-header">
-          <div><div class="card-title">Todas las reservas</div><div class="card-subtitle" id="reservas-count">—</div></div>
-          <div class="search-wrap"><input placeholder="Buscar reserva..." oninput="filtrarReservas(this.value)"></div>
+          <div><div class="card-title">Reservas</div><div class="card-subtitle" id="reservas-count">—</div></div>
+          <div class="search-wrap"><input placeholder="Buscar..." oninput="filtrarReservas(this.value)"></div>
         </div>
-        <div class="table-wrap" id="tabla-reservas"><div class="loading-wrap"><div class="spinner"></div>Cargando...</div></div>
+        <div class="table-wrap" id="tabla-reservas"><div class="loading-wrap"><div class="spinner"></div></div></div>
       </div>
     </div>
 
   </main>
 </div>
 
-<!-- MODAL -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-icon" id="modal-icon">⚠️</div>
@@ -319,7 +299,6 @@
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -337,27 +316,40 @@ async function doLogin(){
     const r=await fetch(`${API}/usuarios/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pwd})});
     const d=await r.json();
     if(!r.ok){showErr(d.mensaje||'Error al iniciar sesión');return}
-    if(d.rol!=='ADMIN' && d.rol!=='SUPERADMIN'){showErr('No tienes permisos de administrador');return}
+    if(d.rol!=='ADMIN'&&d.rol!=='SUPERADMIN'){showErr('No tienes permisos de administrador');return}
     token=d.token;adminNombre=d.nombre;userRol=d.rol;
     userClubId=d.idClub||null;userClubNombre=d.clubNombre||null;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
-    document.getElementById('sidebar-name').textContent=adminNombre;
     document.getElementById('sidebar-avatar').textContent=adminNombre[0].toUpperCase();
     document.getElementById('overview-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    // Si es ADMIN de club, ocultar sección usuarios
-    if(userRol==='ADMIN'){
-      document.getElementById('nav-usuarios').style.display='none';
-      // Mostrar nombre del club en sidebar
+
+    if(userRol==='SUPERADMIN'){
+      document.getElementById('sidebar-name').textContent=adminNombre;
+      document.getElementById('sidebar-role').textContent='⚡ SUPERADMIN';
+      document.getElementById('overview-title').textContent='Resumen global';
+    } else {
       document.getElementById('sidebar-name').textContent=userClubNombre||adminNombre;
+      document.getElementById('sidebar-role').textContent='🏢 ADMIN DE CLUB';
+      document.getElementById('overview-title').textContent=userClubNombre||'Mi club';
+      document.getElementById('nav-usuarios').style.display='none';
+      document.getElementById('reservas-subtitle').textContent=`Reservas de ${userClubNombre}`;
+      // Badge del club en sidebar
+      document.getElementById('club-badge-wrap').innerHTML=`<div class="club-badge">🏢 ${userClubNombre}</div>`;
     }
     loadAll();
   }catch(e){showErr('Error de conexión con el servidor')}
 }
+
 function showErr(m){const e=document.getElementById('login-error');e.textContent=m;e.style.display='block'}
 function logout(){token=null;document.getElementById('dashboard').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-password').value=''}
 function h(){return{'Content-Type':'application/json','Authorization':`Bearer ${token}`}}
-function loadAll(){loadStats();loadUsuarios();loadReservas()}
+function loadAll(){
+  if(userRol==='SUPERADMIN') loadOverviewSuperadmin();
+  else loadOverviewClub();
+  if(userRol==='SUPERADMIN') loadUsuarios();
+  loadReservas();
+}
 
 function showPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
@@ -366,29 +358,145 @@ function showPage(p){
   document.getElementById(`nav-${p}`).classList.add('active');
 }
 
-async function loadStats(){
+// ===== SUPERADMIN OVERVIEW =====
+async function loadOverviewSuperadmin(){
   try{
-    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/stats${clubParam}`,{headers:h()});
-    const s=await r.json();
-    document.getElementById('stats-grid').innerHTML=`
-      <div class="stat-card"><div class="stat-icon" style="background:#E8F0FB">👥</div><div><div class="stat-value" style="color:#1F5DA0">${s.totalUsuarios}</div><div class="stat-label">Usuarios registrados</div></div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9">✅</div><div><div class="stat-value" style="color:#2E7D32">${s.reservasActivas}</div><div class="stat-label">Reservas activas</div></div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0">🏆</div><div><div class="stat-value" style="color:#E65100">${s.totalPartidos}</div><div class="stat-label">Partidos jugados</div></div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:#F3E8FF">📊</div><div><div class="stat-value" style="color:#7C3AED">${s.totalReservas}</div><div class="stat-label">Reservas totales</div></div></div>`;
+    const [sRes,uRes,rRes]=await Promise.all([
+      fetch(`${API}/admin/stats`,{headers:h()}),
+      fetch(`${API}/admin/usuarios`,{headers:h()}),
+      fetch(`${API}/admin/reservas`,{headers:h()})
+    ]);
+    const s=await sRes.json();
+    const usuarios=await uRes.json();
+    const reservas=await rRes.json();
+
+    document.getElementById('overview-content').innerHTML=`
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:#E8F0FB">👥</div><div><div class="stat-value" style="color:#1F5DA0">${s.totalUsuarios}</div><div class="stat-label">Usuarios registrados</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9">✅</div><div><div class="stat-value" style="color:#2E7D32">${s.reservasActivas}</div><div class="stat-label">Reservas activas</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0">🏆</div><div><div class="stat-value" style="color:#E65100">${s.totalPartidos}</div><div class="stat-label">Partidos jugados</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#F3E8FF">📊</div><div><div class="stat-value" style="color:#7C3AED">${s.totalReservas}</div><div class="stat-label">Reservas totales</div></div></div>
+      </div>
+      <div class="overview-grid">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">📅 Últimas reservas</div></div></div>
+          <div class="table-wrap"><table><tbody>${reservas.slice(0,6).map(r=>`
+            <tr>
+              <td><strong>${r.usuario}</strong><br><span style="color:var(--muted);font-size:11px">${r.pista} · ${r.club}</span></td>
+              <td style="color:var(--muted);font-size:12px">${fecha(r.fechaReserva)}</td>
+              <td><span class="badge badge-${r.estado.toLowerCase()}">${r.estado}</span></td>
+            </tr>`).join('')}</tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">👥 Últimos usuarios</div></div></div>
+          <div class="table-wrap"><table><tbody>${usuarios.slice(0,6).map(u=>`
+            <tr>
+              <td><div class="user-cell"><div class="mini-avatar" style="background:${ac(u.nombre)};color:white">${u.nombre[0].toUpperCase()}</div><div><div style="font-weight:600;font-size:13px">${u.nombre}</div><div style="color:var(--muted);font-size:11px">${u.email}</div></div></div></td>
+              <td><span class="badge badge-${u.rol.toLowerCase()}">${u.rol}</span></td>
+              <td style="color:var(--muted);font-size:12px">🎾 ${u.pelotas}</td>
+            </tr>`).join('')}</tbody></table></div>
+        </div>
+      </div>`;
   }catch(e){console.error(e)}
 }
 
+// ===== ADMIN DE CLUB OVERVIEW =====
+async function loadOverviewClub(){
+  try{
+    const [sRes,rRes]=await Promise.all([
+      fetch(`${API}/admin/stats/club/${userClubId}`,{headers:h()}),
+      fetch(`${API}/admin/reservas?clubId=${userClubId}`,{headers:h()})
+    ]);
+    const s=await sRes.json();
+    const reservas=await rRes.json();
+
+    const maxReservas=s.ocupacionPorPista.length>0?s.ocupacionPorPista[0].reservas:1;
+
+    // Reservas de hoy
+    const hoy=new Date();
+    const reservasHoy=reservas.filter(r=>{const f=new Date(r.fechaReserva);return f.toDateString()===hoy.toDateString()});
+
+    document.getElementById('overview-content').innerHTML=`
+      <!-- HEADER DEL CLUB -->
+      <div class="club-header">
+        <h2>🏢 ${userClubNombre}</h2>
+        <p>Panel de control de tu club</p>
+        <div class="club-stats-row">
+          <div class="club-stat"><div class="val">${s.reservasActivas}</div><div class="lbl">Activas ahora</div></div>
+          <div class="club-stat"><div class="val">${s.reservasHoy}</div><div class="lbl">Hoy</div></div>
+          <div class="club-stat"><div class="val">${s.reservasSemana}</div><div class="lbl">Esta semana</div></div>
+          <div class="club-stat"><div class="val">${s.totalReservas}</div><div class="lbl">Total histórico</div></div>
+          <div class="club-stat"><div class="val">${s.ingresos}€</div><div class="lbl">Ingresos activos</div></div>
+        </div>
+      </div>
+
+      <!-- STATS CARDS -->
+      <div class="stats-grid-2" style="margin-bottom:24px">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E8F5E9">✅</div>
+          <div><div class="stat-value" style="color:#2E7D32">${s.reservasActivas}</div><div class="stat-label">Reservas activas</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFEBEE">❌</div>
+          <div><div class="stat-value" style="color:#C62828">${s.reservasCanceladas}</div><div class="stat-label">Reservas canceladas</div></div>
+        </div>
+      </div>
+
+      <div class="three-grid">
+        <!-- OCUPACIÓN POR PISTA -->
+        <div class="card" style="grid-column:span 2">
+          <div class="card-header"><div><div class="card-title">📊 Ocupación por pista</div><div class="card-subtitle">Reservas totales por pista</div></div></div>
+          <div style="padding:20px">
+            ${s.ocupacionPorPista.map(p=>`
+              <div class="ocupacion-bar">
+                <div class="label"><span style="font-weight:600">${p.pista}</span><span style="color:var(--muted)">${p.reservas} reservas</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round(p.reservas/maxReservas*100)}%"></div></div>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- INFO DESTACADA -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="stat-card full" style="flex:1">
+            <div class="stat-icon" style="background:#E8F0FB">🏅</div>
+            <div class="stat-label">Pista más reservada</div>
+            <div class="stat-highlight" style="color:var(--primary)">${s.pistaMasReservada}</div>
+          </div>
+          <div class="stat-card full" style="flex:1">
+            <div class="stat-icon" style="background:#FFF3E0">⭐</div>
+            <div class="stat-label">Jugador más activo</div>
+            <div class="stat-highlight" style="color:var(--warning)">${s.jugadorMasActivo}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESERVAS DE HOY -->
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">📅 Reservas de hoy</div><div class="card-subtitle">${reservasHoy.length} reserva${reservasHoy.length!==1?'s':''} para hoy</div></div>
+        </div>
+        ${reservasHoy.length===0
+          ?'<div class="empty"><div class="empty-icon">📅</div><p>No hay reservas para hoy</p></div>'
+          :`<div class="table-wrap"><table>
+            <thead><tr><th>Jugador</th><th>Pista</th><th>Hora</th><th>Estado</th><th>Acción</th></tr></thead>
+            <tbody>${reservasHoy.map(r=>`<tr>
+              <td><strong>${r.usuario}</strong><br><span style="color:var(--muted);font-size:11px">${r.email}</span></td>
+              <td>${r.pista}</td>
+              <td style="font-weight:700;color:var(--primary)">${new Date(r.fechaReserva).getHours()}:00h</td>
+              <td><span class="badge badge-${r.estado.toLowerCase()}">${r.estado}</span></td>
+              <td>${r.estado==='ACTIVA'?`<button class="btn btn-danger" onclick="cancelarReserva(${r.id},'${r.usuario}')">✕ Cancelar</button>`:'—'}</td>
+            </tr>`).join('')}</tbody>
+          </table></div>`}
+      </div>`;
+  }catch(e){console.error(e)}
+}
+
+// ===== USUARIOS =====
 async function loadUsuarios(){
   try{
     const r=await fetch(`${API}/admin/usuarios`,{headers:h()});
     todosUsuarios=await r.json();
     renderUsuarios(todosUsuarios);
-    document.getElementById('overview-usuarios').innerHTML=`<table><tbody>${todosUsuarios.slice(0,5).map(u=>`
-      <tr>
-        <td><div class="user-cell"><div class="mini-avatar" style="background:${ac(u.nombre)};color:white">${u.nombre[0].toUpperCase()}</div><div><div style="font-weight:600;font-size:13px">${u.nombre}</div><div style="color:var(--muted);font-size:11px">${u.email}</div></div></div></td>
-        <td><span class="badge badge-${u.rol.toLowerCase()}">${u.rol}</span></td>
-        <td style="color:var(--muted);font-size:12px">🎾 ${u.pelotas}</td>
-      </tr>`).join('')}</tbody></table>`;
   }catch(e){}
 }
 function filtrarUsuarios(q){renderUsuarios(todosUsuarios.filter(u=>u.nombre.toLowerCase().includes(q.toLowerCase())||u.email.toLowerCase().includes(q.toLowerCase())))}
@@ -396,47 +504,43 @@ function renderUsuarios(lista){
   document.getElementById('usuarios-count').textContent=`${lista.length} usuario${lista.length!==1?'s':''} en total`;
   if(!lista.length){document.getElementById('tabla-usuarios').innerHTML=vacio('👥','Sin resultados','No se encontraron usuarios');return}
   document.getElementById('tabla-usuarios').innerHTML=`<table>
-    <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Pelotas</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+    <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Club</th><th>Pelotas</th><th>Último acceso</th><th>Acciones</th></tr></thead>
     <tbody>${lista.map(u=>`<tr>
       <td><div class="user-cell"><div class="mini-avatar" style="background:${ac(u.nombre)};color:white">${u.nombre[0].toUpperCase()}</div><strong>${u.nombre}</strong></div></td>
       <td style="color:var(--muted)">${u.email}</td>
       <td><span class="badge badge-${u.rol.toLowerCase()}">${u.rol}</span></td>
+      <td style="color:var(--muted);font-size:12px">${u.club||'—'}</td>
       <td>🎾 <strong>${u.pelotas}</strong></td>
       <td style="color:var(--muted);font-size:12px">${u.ultimoLogin||'—'}</td>
-      <td>${u.rol==='USER'?`<button class="btn btn-primary" onclick="cambiarRol(${u.id},'ADMIN')">⬆ Hacer admin</button>`:`<button class="btn btn-danger" onclick="cambiarRol(${u.id},'USER')">⬇ Quitar admin</button>`}</td>
+      <td>${u.rol==='USER'?`<button class="btn btn-primary" onclick="cambiarRol(${u.id},'ADMIN')">⬆ Admin</button>`:u.rol==='ADMIN'?`<button class="btn btn-danger" onclick="cambiarRol(${u.id},'USER')">⬇ User</button>`:'<span style="color:var(--muted);font-size:12px">—</span>'}</td>
     </tr>`).join('')}</tbody></table>`;
 }
 async function cambiarRol(id,rol){
-  showModal(rol==='ADMIN'?'⭐ Hacer administrador':'🔄 Cambiar a usuario',rol==='ADMIN'?'Este jugador tendrá acceso completo al panel de administración.':'Este usuario perderá los permisos de administrador.',async()=>{
+  showModal(rol==='ADMIN'?'⭐ Hacer administrador':'🔄 Cambiar a usuario',rol==='ADMIN'?'Este jugador tendrá acceso al panel de su club.':'Este usuario perderá los permisos de administrador.',async()=>{
     const r=await fetch(`${API}/admin/usuarios/${id}/rol`,{method:'PUT',headers:h(),body:JSON.stringify({rol})});
-    if(r.ok){toast('Rol actualizado','success');loadUsuarios()}else toast('Error al cambiar el rol','error');
+    if(r.ok){toast('Rol actualizado','success');loadUsuarios()}else toast('Error','error');
   });
 }
 
+// ===== RESERVAS =====
 async function loadReservas(){
   try{
-    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/reservas${clubParam}`,{headers:h()});
+    const param=userClubId?`?clubId=${userClubId}`:'';
+    const r=await fetch(`${API}/admin/reservas${param}`,{headers:h()});
     todasReservas=await r.json();
     renderReservas(todasReservas);
-    document.getElementById('overview-reservas').innerHTML=`<table><tbody>${todasReservas.slice(0,5).map(r=>`
-      <tr>
-        <td><div style="font-weight:600;font-size:13px">${r.usuario}</div><div style="color:var(--muted);font-size:11px">${r.pista}</div></td>
-        <td style="color:var(--muted);font-size:12px">${fecha(r.fechaReserva)}</td>
-        <td><span class="badge badge-${r.estado.toLowerCase()}">${r.estado}</span></td>
-      </tr>`).join('')}</tbody></table>`;
   }catch(e){}
 }
 function filtrarReservas(q){
   const estado=document.getElementById('filtro-estado').value;
   renderReservas(todasReservas.filter(r=>{
-    const mq=!q||(r.usuario.toLowerCase().includes(q.toLowerCase())||r.pista.toLowerCase().includes(q.toLowerCase())||r.club.toLowerCase().includes(q.toLowerCase()));
-    const me=!estado||r.estado===estado;
-    return mq&&me;
+    const mq=!q||(r.usuario.toLowerCase().includes(q.toLowerCase())||r.pista.toLowerCase().includes(q.toLowerCase()));
+    return mq&&(!estado||r.estado===estado);
   }));
 }
 function renderReservas(lista){
-  document.getElementById('reservas-count').textContent=`${lista.length} reserva${lista.length!==1?'s':''} encontrada${lista.length!==1?'s':''}`;
-  if(!lista.length){document.getElementById('tabla-reservas').innerHTML=vacio('📅','Sin resultados','No se encontraron reservas');return}
+  document.getElementById('reservas-count').textContent=`${lista.length} reserva${lista.length!==1?'s':''}`;
+  if(!lista.length){document.getElementById('tabla-reservas').innerHTML=vacio('📅','Sin resultados','No hay reservas');return}
   document.getElementById('tabla-reservas').innerHTML=`<table>
     <thead><tr><th>Jugador</th><th>Pista</th><th>Club</th><th>Fecha y hora</th><th>Estado</th><th>Acciones</th></tr></thead>
     <tbody>${lista.map(r=>`<tr>
@@ -445,20 +549,21 @@ function renderReservas(lista){
       <td style="color:var(--muted)">${r.club}</td>
       <td style="font-size:12px;color:var(--muted)">${fecha(r.fechaReserva)}</td>
       <td><span class="badge badge-${r.estado.toLowerCase()}">${r.estado}</span></td>
-      <td>${r.estado==='ACTIVA'?`<button class="btn btn-danger" onclick="cancelarReserva(${r.id},'${r.usuario}')">✕ Cancelar</button>`:`<span style="color:var(--border)">—</span>`}</td>
+      <td>${r.estado==='ACTIVA'?`<button class="btn btn-danger" onclick="cancelarReserva(${r.id},'${r.usuario}')">✕ Cancelar</button>`:'—'}</td>
     </tr>`).join('')}</tbody></table>`;
 }
 async function cancelarReserva(id,nombre){
   showModal('📅 Cancelar reserva',`¿Cancelar la reserva de ${nombre}? Se devolverán 10 pelotas al jugador.`,async()=>{
-    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/reservas/${id}/cancelar${clubParam}`,{method:'PUT',headers:h()});
-    if(r.ok){toast('Reserva cancelada','success');loadReservas();loadStats()}else toast('Error al cancelar','error');
+    const param=userClubId?`?clubId=${userClubId}`:'';
+    const r=await fetch(`${API}/admin/reservas/${id}/cancelar${param}`,{method:'PUT',headers:h()});
+    if(r.ok){toast('Reserva cancelada','success');loadAll()}else toast('Error al cancelar','error');
   });
 }
 
+// ===== UTILS =====
 function fecha(s){const f=new Date(s);const m=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return`${f.getDate()} ${m[f.getMonth()]} ${f.getFullYear()} · ${String(f.getHours()).padStart(2,'0')}:00h`}
 function ac(n){const c=['#1F5DA0','#2E7D32','#C62828','#E65100','#7C3AED','#0891B2','#BE185D'];return c[n.charCodeAt(0)%c.length]}
 function vacio(i,t,s){return`<div class="empty"><div class="empty-icon">${i}</div><p>${t}</p><span>${s}</span></div>`}
-
 function showModal(title,body,cb){
   document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-body').textContent=body;

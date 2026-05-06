@@ -1,5 +1,7 @@
 package com.tfg.padelpro.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,32 +43,83 @@ public class AdminController {
         this.valoracionRepository = valoracionRepository;
     }
 
-    // STATS — SUPERADMIN ve todo, ADMIN solo su club
+    // STATS SUPERADMIN — visión global
     @GetMapping("/stats")
-    public ResponseEntity<?> getStats(@RequestParam(required = false) Long clubId) {
-        long totalUsuarios = usuarioRepository.count();
-        long totalPartidos = partidoRepository.count();
+    public ResponseEntity<?> getStats() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalUsuarios", usuarioRepository.count());
+        stats.put("totalReservas", reservaRepository.count());
+        stats.put("reservasActivas", reservaRepository.countByEstado("ACTIVA"));
+        stats.put("totalPartidos", partidoRepository.count());
+        return ResponseEntity.ok(stats);
+    }
 
-        long totalReservas;
-        long reservasActivas;
+    // STATS ADMIN DE CLUB — visión detallada de su club
+    @GetMapping("/stats/club/{clubId}")
+    public ResponseEntity<?> getStatsClub(@PathVariable Long clubId) {
+        List<Reserva> todasReservas = reservaRepository.findAllByOrderByFechaReservaDesc();
+        List<Reserva> reservasClub = todasReservas.stream()
+                .filter(r -> r.getPista().getClub().getId().equals(clubId))
+                .collect(Collectors.toList());
 
-        if (clubId != null) {
-            // Admin de club — solo sus reservas
-            List<Reserva> reservasClub = reservaRepository.findAllByOrderByFechaReservaDesc()
-                    .stream().filter(r -> r.getPista().getClub().getId().equals(clubId)).toList();
-            totalReservas = reservasClub.size();
-            reservasActivas = reservasClub.stream().filter(r -> "ACTIVA".equals(r.getEstado())).count();
-        } else {
-            // Superadmin — todo
-            totalReservas = reservaRepository.count();
-            reservasActivas = reservaRepository.countByEstado("ACTIVA");
-        }
+        long totalReservas = reservasClub.size();
+        long reservasActivas = reservasClub.stream().filter(r -> "ACTIVA".equals(r.getEstado())).count();
+        long reservasCanceladas = reservasClub.stream().filter(r -> "CANCELADA".equals(r.getEstado())).count();
+
+        // Reservas de hoy
+        LocalDateTime inicioHoy = LocalDate.now().atStartOfDay();
+        LocalDateTime finHoy = LocalDate.now().atTime(23, 59, 59);
+        long reservasHoy = reservasClub.stream()
+                .filter(r -> r.getFechaReserva().isAfter(inicioHoy) && r.getFechaReserva().isBefore(finHoy))
+                .count();
+
+        // Ingresos estimados (reservas activas * precio medio)
+        double ingresos = reservasClub.stream()
+                .filter(r -> "ACTIVA".equals(r.getEstado()))
+                .mapToDouble(r -> r.getPista().getPrecioHora())
+                .sum();
+
+        // Pista más reservada
+        Map<String, Long> reservasPorPista = reservasClub.stream()
+                .collect(Collectors.groupingBy(r -> r.getPista().getNombre(), Collectors.counting()));
+        String pistaMasReservada = reservasPorPista.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).orElse("—");
+
+        // Ocupación por pista
+        List<Map<String, Object>> ocupacionPorPista = reservasPorPista.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(e -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("pista", e.getKey());
+                    m.put("reservas", e.getValue());
+                    return m;
+                }).collect(Collectors.toList());
+
+        // Jugador más activo
+        Map<String, Long> reservasPorUsuario = reservasClub.stream()
+                .collect(Collectors.groupingBy(r -> r.getUsuario().getNombre(), Collectors.counting()));
+        String jugadorMasActivo = reservasPorUsuario.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).orElse("—");
+
+        // Reservas esta semana
+        LocalDateTime inicioSemana = LocalDate.now().minusDays(7).atStartOfDay();
+        long reservasSemana = reservasClub.stream()
+                .filter(r -> r.getFechaReserva().isAfter(inicioSemana))
+                .count();
 
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalUsuarios", totalUsuarios);
         stats.put("totalReservas", totalReservas);
         stats.put("reservasActivas", reservasActivas);
-        stats.put("totalPartidos", totalPartidos);
+        stats.put("reservasCanceladas", reservasCanceladas);
+        stats.put("reservasHoy", reservasHoy);
+        stats.put("reservasSemana", reservasSemana);
+        stats.put("ingresos", Math.round(ingresos * 100.0) / 100.0);
+        stats.put("pistaMasReservada", pistaMasReservada);
+        stats.put("jugadorMasActivo", jugadorMasActivo);
+        stats.put("ocupacionPorPista", ocupacionPorPista);
+
         return ResponseEntity.ok(stats);
     }
 
@@ -107,14 +160,11 @@ public class AdminController {
     @GetMapping("/reservas")
     public ResponseEntity<?> getReservas(@RequestParam(required = false) Long clubId) {
         List<Reserva> reservas = reservaRepository.findAllByOrderByFechaReservaDesc();
-
-        // Filtrar por club si es ADMIN de club
         if (clubId != null) {
             reservas = reservas.stream()
                     .filter(r -> r.getPista().getClub().getId().equals(clubId))
                     .collect(Collectors.toList());
         }
-
         List<Map<String, Object>> respuesta = reservas.stream().map(r -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", r.getId());
@@ -127,16 +177,14 @@ public class AdminController {
             map.put("estado", r.getEstado());
             return map;
         }).toList();
-
         return ResponseEntity.ok(respuesta);
     }
 
-    // CANCELAR RESERVA (admin de club solo puede cancelar las suyas)
+    // CANCELAR RESERVA
     @PutMapping("/reservas/{id}/cancelar")
     public ResponseEntity<?> cancelarReservaAdmin(@PathVariable Long id,
                                                    @RequestParam(required = false) Long clubId) {
         return reservaRepository.findById(id).map(r -> {
-            // Verificar que el admin de club solo cancela reservas de su club
             if (clubId != null && !r.getPista().getClub().getId().equals(clubId)) {
                 return ResponseEntity.<Object>status(HttpStatus.FORBIDDEN)
                         .body(Map.of("mensaje", "No tienes permisos para cancelar esta reserva"));
