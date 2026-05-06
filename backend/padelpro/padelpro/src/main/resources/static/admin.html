@@ -337,7 +337,7 @@ async function doLogin(){
     const r=await fetch(`${API}/usuarios/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pwd})});
     const d=await r.json();
     if(!r.ok){showErr(d.mensaje||'Error al iniciar sesión');return}
-    if(d.rol!=='ADMIN'){showErr('No tienes permisos de administrador');return}
+    if(d.rol!=='ADMIN' && d.rol!=='SUPERADMIN'){showErr('No tienes permisos de administrador');return}
     token=d.token;adminNombre=d.nombre;userRol=d.rol;
     userClubId=d.idClub||null;userClubNombre=d.clubNombre||null;
     document.getElementById('login-screen').style.display='none';
