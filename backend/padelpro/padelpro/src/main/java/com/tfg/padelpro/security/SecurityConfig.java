@@ -30,7 +30,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CORS para que el panel web pueda llamar a la API
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -52,10 +51,20 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                    // Panel admin web
+                    "/admin.html",
+                    "/",
+                    "/*.png",
+                    "/*.jpg",
+                    "/*.ico",
+                    "/*.css",
+                    "/*.js",
+                    // API pública
                     "/api/usuarios/login",
                     "/api/usuarios/registrar",
                     "/api/pistas",
                     "/api/pistas/**",
+                    // Swagger
                     "/docs",
                     "/docs/**",
                     "/swagger-ui.html",
