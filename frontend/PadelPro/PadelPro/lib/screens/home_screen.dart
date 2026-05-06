@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Pista>> pistas;
+  int _reservaKey = 0;
   Position? _posicion;
 
   double _distancia(double lat1, double lng1, double lat2, double lng2) {
@@ -151,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const MisReservasScreen()),
-                            ).then((_) => setState(() {}));
+                            ).then((_) => setState(() => _reservaKey++));
                           },
                           child: const Text(
                             "Ver todas",
@@ -246,6 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _proximaReserva() {
     return FutureBuilder(
+      key: ValueKey(_reservaKey),
       future: ReservaService.getReservasUsuario(Session.usuarioId!),
       builder: (context, snapshot) {
 
@@ -431,7 +433,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _pistaCard(Pista pista) {
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista)),
+      ).then((_) => setState(() => _reservaKey++)),
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(

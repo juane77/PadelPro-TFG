@@ -137,7 +137,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                             children: [
                               const Icon(Icons.people_rounded, color: Colors.white, size: 14),
                               const SizedBox(width: 4),
-                              Text("Invitado por ${partido["nombreCreador"]}", style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                              const Text("Invitado", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
                             ],
                           ),
                         ),

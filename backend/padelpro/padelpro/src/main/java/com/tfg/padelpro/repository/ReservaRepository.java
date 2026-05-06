@@ -9,32 +9,20 @@ import com.tfg.padelpro.entity.Reserva;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
-    /// comprobar si existe reserva
-    boolean existsByPistaIdAndFechaReservaAndEstado(
-            Long pistaId,
-            LocalDateTime fechaReserva,
-            String estado
-    );
-
-    /// reservas de una pista entre dos horas
-    List<Reserva> findByPistaIdAndFechaReservaBetweenAndEstado(
-            Long pistaId,
-            LocalDateTime inicio,
-            LocalDateTime fin,
-            String estado
-    );
-
-    /// reservas de usuario
-    List<Reserva> findByUsuarioId(Long id);
+    boolean existsByPistaIdAndFechaReservaAndEstado(Long pistaId, LocalDateTime fechaReserva, String estado);
 
     long countByUsuarioIdAndEstado(Long usuarioId, String estado);
 
-    boolean existsByUsuarioIdAndFechaReservaBetweenAndEstado(
-            Long usuarioId,
-            LocalDateTime inicio,
-            LocalDateTime fin,
-            String estado
-    );
+    long countByEstado(String estado);
 
+    boolean existsByUsuarioIdAndFechaReservaBetweenAndEstado(Long usuarioId, LocalDateTime inicio, LocalDateTime fin, String estado);
+
+    List<Reserva> findByPistaIdAndFechaReservaBetweenAndEstado(Long pistaId, LocalDateTime inicio, LocalDateTime fin, String estado);
+
+    List<Reserva> findByUsuarioId(Long usuarioId);
+
+    List<Reserva> findAllByOrderByFechaReservaDesc();
+
+    // Necesario para el scheduler
     List<Reserva> findByFechaReservaBefore(LocalDateTime fecha);
 }
