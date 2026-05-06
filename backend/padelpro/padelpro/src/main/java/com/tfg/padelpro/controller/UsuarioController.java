@@ -1,6 +1,7 @@
 package com.tfg.padelpro.controller;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -38,40 +39,25 @@ public class UsuarioController {
         this.jwtUtil = jwtUtil;
     }
 
-    // 🔵 REGISTRO CON BCRYPT
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(@Valid @RequestBody RegistroRequestDTO dto) {
-
         if (usuarioRepository.findByEmail(dto.email()) != null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("mensaje", "El email ya está registrado"));
+            return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está registrado"));
         }
-
         String passwordHasheada = passwordEncoder.encode(dto.password());
-
-        Usuario nuevo = new Usuario(
-                dto.nombre(),
-                dto.email(),
-                passwordHasheada
-        );
-
+        Usuario nuevo = new Usuario(dto.nombre(), dto.email(), passwordHasheada);
         Usuario guardado = usuarioRepository.save(nuevo);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "id", guardado.getId(),
-                        "nombre", guardado.getNombre(),
-                        "email", guardado.getEmail(),
-                        "rol", guardado.getRol()
-                ));
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "id", guardado.getId(),
+                "nombre", guardado.getNombre(),
+                "email", guardado.getEmail(),
+                "rol", guardado.getRol()
+        ));
     }
 
-    // 🔵 LOGIN — devuelve token JWT
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO dto) {
-
         Usuario u = usuarioRepository.findByEmail(dto.email());
-
         if (u == null || !passwordEncoder.matches(dto.password(), u.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensaje", "Email o contraseña incorrectos"));
@@ -79,7 +65,6 @@ public class UsuarioController {
 
         String token = jwtUtil.generateToken(u.getEmail());
 
-        // 🎾 BONUS DIARIO — 5 pelotas si no ha iniciado sesión hoy
         LocalDate hoy = LocalDate.now();
         if (u.getUltimoLogin() == null || !u.getUltimoLogin().equals(hoy)) {
             u.setPelotas(u.getPelotas() + 5);
@@ -87,19 +72,20 @@ public class UsuarioController {
             usuarioRepository.save(u);
         }
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "id", u.getId(),
-                        "nombre", u.getNombre(),
-                        "email", u.getEmail(),
-                        "rol", u.getRol(),
-                        "token", token,
-                        "pelotas", u.getPelotas()
-                )
-        );
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("id", u.getId());
+        respuesta.put("nombre", u.getNombre());
+        respuesta.put("email", u.getEmail());
+        respuesta.put("rol", u.getRol());
+        respuesta.put("token", token);
+        respuesta.put("pelotas", u.getPelotas());
+        // Devolver idClub para que el panel sepa qué club filtrar
+        respuesta.put("idClub", u.getClub() != null ? u.getClub().getId() : null);
+        respuesta.put("clubNombre", u.getClub() != null ? u.getClub().getNombre() : null);
+
+        return ResponseEntity.ok(respuesta);
     }
 
-    // 🎾 CONSULTAR PELOTAS
     @GetMapping("/{id}/pelotas")
     public ResponseEntity<?> getPelotas(@PathVariable Long id) {
         return usuarioRepository.findById(id).map(u ->
@@ -107,16 +93,12 @@ public class UsuarioController {
         ).orElse(ResponseEntity.<Object>notFound().build());
     }
 
-    // 🔵 EDITAR NOMBRE
     @PutMapping("/{id}/nombre")
-    public ResponseEntity<?> editarNombre(@PathVariable Long id,
-                                          @RequestBody Map<String, String> body) {
-
+    public ResponseEntity<?> editarNombre(@PathVariable Long id, @RequestBody Map<String, String> body) {
         return usuarioRepository.findById(id).map(u -> {
             String nuevoNombre = body.get("nombre");
             if (nuevoNombre == null || nuevoNombre.trim().length() < 2) {
-                return ResponseEntity.badRequest()
-                        .<Object>body(Map.of("mensaje", "El nombre debe tener al menos 2 caracteres"));
+                return ResponseEntity.badRequest().<Object>body(Map.of("mensaje", "El nombre debe tener al menos 2 caracteres"));
             }
             u.setNombre(nuevoNombre.trim());
             usuarioRepository.save(u);

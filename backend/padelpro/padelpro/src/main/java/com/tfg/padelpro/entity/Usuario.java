@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,8 +41,11 @@ public class Usuario {
     @Column(name = "ultimo_login")
     private LocalDate ultimoLogin;
 
-    protected Usuario() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "id_club", nullable = true)
+    private Club club;
+
+    protected Usuario() {}
 
     public Usuario(String nombre, String email, String password) {
         this.nombre = nombre;
@@ -51,49 +56,17 @@ public class Usuario {
         this.pelotas = 100;
     }
 
-    // GETTERS Y SETTERS
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getRol() {
-        return rol;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setRol(String rol) {
-        this.rol = rol;
-    }
-
-    public int getPelotas() {
-        return pelotas;
-    }
-
-    public void setPelotas(int pelotas) {
-        this.pelotas = pelotas;
-    }
-
-    public LocalDate getUltimoLogin() {
-        return ultimoLogin;
-    }
-
-    public void setUltimoLogin(LocalDate ultimoLogin) {
-        this.ultimoLogin = ultimoLogin;
-    }
+    public Long getId() { return id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getEmail() { return email; }
+    public String getRol() { return rol; }
+    public String getPassword() { return password; }
+    public void setRol(String rol) { this.rol = rol; }
+    public int getPelotas() { return pelotas; }
+    public void setPelotas(int pelotas) { this.pelotas = pelotas; }
+    public LocalDate getUltimoLogin() { return ultimoLogin; }
+    public void setUltimoLogin(LocalDate ultimoLogin) { this.ultimoLogin = ultimoLogin; }
+    public Club getClub() { return club; }
+    public void setClub(Club club) { this.club = club; }
 }

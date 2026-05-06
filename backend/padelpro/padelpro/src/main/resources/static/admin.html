@@ -324,7 +324,7 @@
 
 <script>
 const API='https://padelpro-tfg.onrender.com/api';
-let token=null,adminNombre='';
+let token=null,adminNombre='',userRol='',userClubId=null,userClubNombre='';
 let todosUsuarios=[],todasReservas=[];
 
 async function doLogin(){
@@ -338,12 +338,19 @@ async function doLogin(){
     const d=await r.json();
     if(!r.ok){showErr(d.mensaje||'Error al iniciar sesión');return}
     if(d.rol!=='ADMIN'){showErr('No tienes permisos de administrador');return}
-    token=d.token;adminNombre=d.nombre;
+    token=d.token;adminNombre=d.nombre;userRol=d.rol;
+    userClubId=d.idClub||null;userClubNombre=d.clubNombre||null;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
     document.getElementById('sidebar-name').textContent=adminNombre;
     document.getElementById('sidebar-avatar').textContent=adminNombre[0].toUpperCase();
     document.getElementById('overview-date').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    // Si es ADMIN de club, ocultar sección usuarios
+    if(userRol==='ADMIN'){
+      document.getElementById('nav-usuarios').style.display='none';
+      // Mostrar nombre del club en sidebar
+      document.getElementById('sidebar-name').textContent=userClubNombre||adminNombre;
+    }
     loadAll();
   }catch(e){showErr('Error de conexión con el servidor')}
 }
@@ -361,7 +368,7 @@ function showPage(p){
 
 async function loadStats(){
   try{
-    const r=await fetch(`${API}/admin/stats`,{headers:h()});
+    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/stats${clubParam}`,{headers:h()});
     const s=await r.json();
     document.getElementById('stats-grid').innerHTML=`
       <div class="stat-card"><div class="stat-icon" style="background:#E8F0FB">👥</div><div><div class="stat-value" style="color:#1F5DA0">${s.totalUsuarios}</div><div class="stat-label">Usuarios registrados</div></div></div>
@@ -408,7 +415,7 @@ async function cambiarRol(id,rol){
 
 async function loadReservas(){
   try{
-    const r=await fetch(`${API}/admin/reservas`,{headers:h()});
+    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/reservas${clubParam}`,{headers:h()});
     todasReservas=await r.json();
     renderReservas(todasReservas);
     document.getElementById('overview-reservas').innerHTML=`<table><tbody>${todasReservas.slice(0,5).map(r=>`
@@ -443,7 +450,7 @@ function renderReservas(lista){
 }
 async function cancelarReserva(id,nombre){
   showModal('📅 Cancelar reserva',`¿Cancelar la reserva de ${nombre}? Se devolverán 10 pelotas al jugador.`,async()=>{
-    const r=await fetch(`${API}/admin/reservas/${id}/cancelar`,{method:'PUT',headers:h()});
+    const clubParam=userClubId?`?clubId=${userClubId}`:'';const r=await fetch(`${API}/admin/reservas/${id}/cancelar${clubParam}`,{method:'PUT',headers:h()});
     if(r.ok){toast('Reserva cancelada','success');loadReservas();loadStats()}else toast('Error al cancelar','error');
   });
 }
