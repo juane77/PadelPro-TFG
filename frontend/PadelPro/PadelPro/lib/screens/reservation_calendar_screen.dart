@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:provider/provider.dart';
 import '../models/pista.dart';
 import '../service/reserva_service.dart';
 import '../service/session.dart';
 import '../service/notification_push_service.dart';
+import '../service/reserva_provider.dart';
 import '../utils/app_snackbar.dart';
 
 class ReservationCalendarScreen extends StatefulWidget {
@@ -86,6 +88,8 @@ class _ReservationCalendarScreenState
           Session.pelotas -= 15;
         });
         cargarReservasMes();
+        
+        context.read<ReservaProvider>().cargarReservas();
 
         await PushService.notificarInfo(
           "Reserva confirmada",

@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../main.dart';
+import 'package:provider/provider.dart';
+import '../service/reserva_provider.dart';
 import '../service/api_service.dart';
-import '../service/reserva_service.dart';
 import '../models/pista.dart';
 import '../service/session.dart';
 import '../widgets/app_header.dart';
@@ -22,10 +22,9 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with RouteAware {
+class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Pista>> pistas;
-  int _reservaKey = 0;
   Position? _posicion;
 
   double _distancia(double lat1, double lng1, double lat2, double lng2) {
@@ -42,27 +41,13 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   void initState() {
     super.initState();
     pistas = ApiService.getPistas();
-    _obtenerUbicacion();
+    _obtenerubicacion();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReservaProvider>().cargarReservas();
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    MyApp.routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
-  void dispose() {
-    MyApp.routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
-  @override
-  void didPopNext() {
-    setState(() => _reservaKey++);
-  }
-
-  Future<void> _obtenerUbicacion() async {
+  Future<void> _obtenerubicacion() async {
     try {
       final permiso = await Geolocator.checkPermission();
       if (permiso == LocationPermission.denied) {
@@ -170,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const MisReservasScreen()),
-                            ).then((_) => setState(() => _reservaKey++));
+                            );
                           },
                           child: const Text(
                             "Ver todas",
@@ -264,16 +249,13 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 
   Widget _proximaReserva() {
-    return FutureBuilder(
-      key: ValueKey(_reservaKey),
-      future: ReservaService.getReservasUsuario(Session.usuarioId!),
-      builder: (context, snapshot) {
-
-        if (!snapshot.hasData) {
+    return Consumer<ReservaProvider>(
+      builder: (context, provider, child) {
+        if (provider.cargando) {
           return const Center(child: CircularProgressIndicator(color: Color(0xFF1F5DA0)));
         }
 
-        List reservas = snapshot.data!
+        final reservas = provider.reservas
             .where((r) => r["estado"] == "ACTIVA")
             .toList();
 
@@ -454,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista)),
-      ).then((_) => setState(() => _reservaKey++)),
+      ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(

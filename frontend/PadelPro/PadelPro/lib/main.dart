@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
 import 'service/notification_push_service.dart';
 import 'service/app_settings.dart';
+import 'service/reserva_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,10 +54,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: settings.modoOscuro ? ThemeMode.dark : ThemeMode.light,
-      navigatorObservers: [MyApp.routeObserver],
+    return ChangeNotifierProvider(
+      create: (_) => ReservaProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        themeMode: settings.modoOscuro ? ThemeMode.dark : ThemeMode.light,
 
       // TEMA CLARO
       theme: ThemeData(
@@ -99,6 +102,7 @@ class _MyAppState extends State<MyApp> {
       },
 
       home: const SplashScreen(),
+      ),
     );
   }
 }

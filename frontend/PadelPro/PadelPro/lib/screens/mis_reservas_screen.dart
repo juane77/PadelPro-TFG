@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../service/reserva_service.dart';
+import '../service/reserva_provider.dart';
 import '../service/session.dart';
 import '../service/notification_push_service.dart';
 import '../utils/app_snackbar.dart';
@@ -70,6 +72,10 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
         setState(() {
           reservas = ReservaService.getReservasUsuario(Session.usuarioId!);
           Session.pelotas += 10;
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          context.read<ReservaProvider>().cargarReservas();
         });
 
         await PushService.notificarImportante(
