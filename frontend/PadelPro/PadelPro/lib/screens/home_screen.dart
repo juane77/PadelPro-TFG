@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../main.dart';
 import '../service/api_service.dart';
 import '../service/reserva_service.dart';
 import '../models/pista.dart';
@@ -21,7 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   late Future<List<Pista>> pistas;
   int _reservaKey = 0;
@@ -42,6 +43,23 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     pistas = ApiService.getPistas();
     _obtenerUbicacion();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    MyApp.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    MyApp.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    setState(() => _reservaKey++);
   }
 
   Future<void> _obtenerUbicacion() async {

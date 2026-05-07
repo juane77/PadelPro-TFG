@@ -34,6 +34,7 @@ void _wakeUpServer() {
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
+  static final routeObserver = RouteObserver<Route>();
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -54,6 +55,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       themeMode: settings.modoOscuro ? ThemeMode.dark : ThemeMode.light,
+      navigatorObservers: [MyApp.routeObserver],
 
       // TEMA CLARO
       theme: ThemeData(
