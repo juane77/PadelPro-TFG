@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/app/(.*)", "destination": "/frontend/build/web/$1" },
-    { "source": "/app", "destination": "/frontend/build/web/index.html" },
-    { "source": "/", "destination": "/landing page/index.html" }
-  ]
-}
