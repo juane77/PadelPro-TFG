@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../utils/app_snackbar.dart';
 import 'login_screen.dart';
+import 'confirmar_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -59,10 +60,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 201) {
-        AppSnackbar.exito(context, "Usuario registrado correctamente");
-        Navigator.pushReplacement(
+        final data = json.decode(response.body);
+        final email = emailController.text.trim();
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => LoginScreen()),
+          MaterialPageRoute(builder: (_) => ConfirmarEmailScreen(email: email, esRegistro: true)),
+          (route) => false,
         );
       } else {
         final data = json.decode(response.body);

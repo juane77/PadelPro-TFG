@@ -19,7 +19,6 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  String? _codigoRecibido;
   String? _emailIngresado;
 
   @override
@@ -51,11 +50,10 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
 
     if (result["success"]) {
       setState(() {
-        _codigoRecibido = result["codigo"];
         _emailIngresado = email;
         _step = 1;
       });
-      AppSnackbar.exito(context, "Código enviado: ${result["codigo"]}");
+      AppSnackbar.exito(context, "Revisa tu email para ver el código");
     } else {
       AppSnackbar.error(context, result["mensaje"]);
     }
@@ -73,11 +71,23 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       return;
     }
 
-    if (codigo == _codigoRecibido) {
+    setState(() => _cargando = true);
+
+    final result = await RecuperarService.cambiarPassword(
+      _emailIngresado!,
+      codigo,
+      "",
+    );
+
+    setState(() => _cargando = false);
+
+    if (result["mensaje"] == "Código inválido o expirado") {
+      AppSnackbar.error(context, "Código incorrecto");
+    } else if (result["success"] || result["mensaje"] != null) {
       setState(() => _step = 2);
       AppSnackbar.exito(context, "Código verificado");
     } else {
-      AppSnackbar.error(context, "Código incorrecto");
+      AppSnackbar.error(context, result["mensaje"]);
     }
   }
 
@@ -102,7 +112,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
 
     final result = await RecuperarService.cambiarPassword(
       _emailIngresado!,
-      _codigoRecibido!,
+      _codigoController.text.trim(),
       password,
     );
 
@@ -112,7 +122,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       AppSnackbar.exito(context, "Contraseña actualizada correctamente");
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
     } else {
@@ -213,7 +223,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       case 0:
         return "Introduce tu email para recibir un código";
       case 1:
-        return "Introduce el código de 6 dígitos";
+        return "Introduce el código que te hemos enviado por email";
       case 2:
         return "Crea una nueva contraseña";
       default:
@@ -283,7 +293,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
           child: Column(
             children: [
               const Text(
-                "Tu código es:",
+                "Te hemos enviado un código a:",
                 style: TextStyle(
                   fontFamily: "Poppins",
                   fontSize: 14,
@@ -292,13 +302,12 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _codigoRecibido ?? "------",
+                _emailIngresado ?? "------",
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   fontFamily: "Poppins",
                   color: Color(0xFF1F5DA0),
-                  letterSpacing: 8,
                 ),
               ),
             ],

@@ -17,7 +17,6 @@ class RecuperarService {
         final data = json.decode(response.body);
         return {
           "success": true,
-          "codigo": data["codigo"],
           "mensaje": data["mensaje"]
         };
       } else {
@@ -62,6 +61,64 @@ class RecuperarService {
         return {
           "success": false,
           "mensaje": data["mensaje"] ?? "Error al cambiar contraseña"
+        };
+      }
+    } catch (e) {
+      return {
+        "success": false,
+        "mensaje": "Error de conexión. Inténtalo de nuevo."
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> confirmarEmail(String email, String codigo) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/usuarios/confirmar-email"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "codigo": codigo}),
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          "success": true,
+          "mensaje": data["mensaje"]
+        };
+      } else {
+        final data = json.decode(response.body);
+        return {
+          "success": false,
+          "mensaje": data["mensaje"] ?? "Error al confirmar email"
+        };
+      }
+    } catch (e) {
+      return {
+        "success": false,
+        "mensaje": "Error de conexión. Inténtalo de nuevo."
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> reenviarConfirmacion(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/usuarios/reenviar-confirmacion"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email}),
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          "success": true,
+          "mensaje": data["mensaje"]
+        };
+      } else {
+        final data = json.decode(response.body);
+        return {
+          "success": false,
+          "mensaje": data["mensaje"] ?? "Error al reenviar código"
         };
       }
     } catch (e) {

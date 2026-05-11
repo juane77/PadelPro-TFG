@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../service/session.dart';
+import '../service/recuperar_service.dart';
 import '../utils/app_snackbar.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 import 'recuperar_password_screen.dart';
+import 'confirmar_email_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -49,11 +51,47 @@ class LoginScreen extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
-        AppSnackbar.error(context, "Email o contraseña incorrectos");
+        final data = json.decode(response.body);
+        if (data["emailNoVerificado"] == true) {
+          _mostrarDialogoEmailNoVerificado(context, email);
+        } else {
+          AppSnackbar.error(context, data["mensaje"] ?? "Email o contraseña incorrectos");
+        }
       }
     } catch (e) {
       AppSnackbar.error(context, "Error de conexión. Inténtalo de nuevo.");
     }
+  }
+
+  void _mostrarDialogoEmailNoVerificado(BuildContext context, String email) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Email no confirmado"),
+        content: const Text("Debes confirmar tu email antes de iniciar sesión.\n\n¿Quieres que te reenviemos el código de confirmación?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final result = await RecuperarService.reenviarConfirmacion(email);
+              if (result["success"]) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ConfirmarEmailScreen(email: email)),
+                );
+              } else {
+                AppSnackbar.error(context, result["mensaje"]);
+              }
+            },
+            child: const Text("Reenviar código"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

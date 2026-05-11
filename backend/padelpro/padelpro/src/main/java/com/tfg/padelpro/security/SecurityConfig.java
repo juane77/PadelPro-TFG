@@ -64,6 +64,8 @@ public class SecurityConfig {
                     "/api/usuarios/registrar",
                     "/api/usuarios/recuperar",
                     "/api/usuarios/cambiar-password",
+                    "/api/usuarios/confirmar-email",
+                    "/api/usuarios/reenviar-confirmacion",
                     "/api/pistas",
                     "/api/pistas/**",
                     "/api/noticias",

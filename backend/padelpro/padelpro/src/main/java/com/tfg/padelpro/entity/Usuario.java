@@ -52,6 +52,12 @@ public class Usuario {
     @Column(name = "codigo_expiracion")
     private LocalDateTime codigoExpiracion;
 
+    @Column(name = "email_verificado")
+    private boolean emailVerificado = false;
+
+    @Column(name = "codigo_confirmacion")
+    private String codigoConfirmacion;
+
     protected Usuario() {}
 
     public Usuario(String nombre, String email, String password) {
@@ -81,4 +87,8 @@ public class Usuario {
     public void setCodigoRecuperacion(String codigo) { this.codigoRecuperacion = codigo; }
     public LocalDateTime getCodigoExpiracion() { return codigoExpiracion; }
     public void setCodigoExpiracion(LocalDateTime exp) { this.codigoExpiracion = exp; }
+    public boolean isEmailVerificado() { return emailVerificado; }
+    public void setEmailVerificado(boolean verificado) { this.emailVerificado = verificado; }
+    public String getCodigoConfirmacion() { return codigoConfirmacion; }
+    public void setCodigoConfirmacion(String codigo) { this.codigoConfirmacion = codigo; }
 }
