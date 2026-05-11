@@ -88,7 +88,7 @@ public class Usuario {
     public LocalDateTime getCodigoExpiracion() { return codigoExpiracion; }
     public void setCodigoExpiracion(LocalDateTime exp) { this.codigoExpiracion = exp; }
     public Boolean isEmailVerificado() { return emailVerificado; }
-    public void setEmailVerificado(boolean verificado) { this.emailVerificado = verificado; }
+    public void setEmailVerificado(Boolean verificado) { this.emailVerificado = verificado; }
     public String getCodigoConfirmacion() { return codigoConfirmacion; }
     public void setCodigoConfirmacion(String codigo) { this.codigoConfirmacion = codigo; }
 }

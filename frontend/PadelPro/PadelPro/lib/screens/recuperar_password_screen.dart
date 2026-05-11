@@ -122,7 +122,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       AppSnackbar.exito(context, "Contraseña actualizada correctamente");
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => LoginScreen()),
         (route) => false,
       );
     } else {

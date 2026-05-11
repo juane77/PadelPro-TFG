@@ -87,7 +87,7 @@ public class UsuarioController {
                     .body(Map.of("mensaje", "Email o contraseña incorrectos"));
         }
         
-        if (!u.isEmailVerificado()) {
+        if (!Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensaje", "Debes confirmar tu email primero", "emailNoVerificado", true));
         }
@@ -149,7 +149,7 @@ public class UsuarioController {
             return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado, te hemos enviado un código"));
         }
         
-        if (!u.isEmailVerificado()) {
+        if (!Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado y confirmado, te hemos enviado un código"));
         }
         
@@ -225,7 +225,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "Usuario no encontrado"));
         }
         
-        if (u.isEmailVerificado()) {
+        if (Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está confirmado"));
         }
         
@@ -254,7 +254,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email no está registrado"));
         }
         
-        if (u.isEmailVerificado()) {
+        if (Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está confirmado"));
         }
         

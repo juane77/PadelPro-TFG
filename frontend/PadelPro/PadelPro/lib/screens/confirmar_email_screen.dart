@@ -49,7 +49,7 @@ class _ConfirmarEmailScreenState extends State<ConfirmarEmailScreen> {
       AppSnackbar.exito(context, "Email confirmado correctamente");
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => LoginScreen()),
         (route) => false,
       );
     } else {
@@ -90,7 +90,7 @@ class _ConfirmarEmailScreenState extends State<ConfirmarEmailScreen> {
                     GestureDetector(
                       onTap: () => Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
                         (route) => false,
                       ),
                       child: Container(
@@ -252,7 +252,7 @@ class _ConfirmarEmailScreenState extends State<ConfirmarEmailScreen> {
                         TextButton(
                           onPressed: () => Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                            MaterialPageRoute(builder: (_) => LoginScreen()),
                             (route) => false,
                           ),
                           child: const Text(
