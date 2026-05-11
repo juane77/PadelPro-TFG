@@ -1,15 +1,19 @@
 package com.tfg.padelpro.controller;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,16 +38,45 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final JavaMailSender mailSender;
+
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
     public UsuarioController(UsuarioRepository usuarioRepository,
                              PasswordEncoder passwordEncoder,
-                             JwtUtil jwtUtil,
-                             JavaMailSender mailSender) {
+                             JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
-        this.mailSender = mailSender;
+    }
+
+    private void enviarEmail(String destinatario, String asunto, String texto) {
+        try {
+            String body = String.format("""
+                {
+                    "sender": {"name": "PadelPro", "email": "juaneloyortizlara@gmail.com"},
+                    "to": [{"email": "%s"}],
+                    "subject": "%s",
+                    "textContent": "%s"
+                }
+                """, destinatario, asunto, texto.replace("\n", "\\n").replace("\"", "\\\""));
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("accept", "application/json")
+                .header("api-key", brevoApiKey)
+                .header("content-type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("Brevo response: " + response.statusCode() + " " + response.body());
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("ERROR al enviar email via Brevo API: " + e.getMessage());
+        }
     }
 
     @PostMapping("/registrar")
@@ -60,16 +93,11 @@ public class UsuarioController {
         nuevo.setCodigoConfirmacion(codigoConfirmacion);
         Usuario guardado = usuarioRepository.save(nuevo);
 
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(dto.email());
-            message.setSubject("Confirma tu cuenta - PadelPro");
-            message.setText("Tu código de confirmación es: " + codigoConfirmacion);
-            message.setFrom("juaneloyortizlara@gmail.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("ERROR al enviar email de confirmación: " + e.getMessage());
-        }
+        enviarEmail(
+            dto.email(),
+            "Confirma tu cuenta - PadelPro",
+            "Tu código de confirmación es: " + codigoConfirmacion
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", guardado.getId(),
@@ -158,16 +186,11 @@ public class UsuarioController {
         u.setCodigoExpiracion(LocalDateTime.now().plusMinutes(15));
         usuarioRepository.save(u);
 
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Código de recuperación - PadelPro");
-            message.setText("Tu código de recuperación es: " + codigo + "\n\nCódigo válido por 15 minutos.");
-            message.setFrom("juaneloyortizlara@gmail.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("ERROR al enviar email de recuperación: " + e.getMessage());
-        }
+        enviarEmail(
+            email,
+            "Código de recuperación - PadelPro",
+            "Tu código de recuperación es: " + codigo + "\n\nCódigo válido por 15 minutos."
+        );
 
         return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado y confirmado, te hemos enviado un código"));
     }
@@ -263,16 +286,11 @@ public class UsuarioController {
         u.setCodigoConfirmacion(codigoConfirmacion);
         usuarioRepository.save(u);
 
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Tu código de confirmación - PadelPro");
-            message.setText("Tu código de confirmación es: " + codigoConfirmacion);
-            message.setFrom("juaneloyortizlara@gmail.com");
-            mailSender.send(message);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("mensaje", "Error al enviar email"));
-        }
+        enviarEmail(
+            email,
+            "Tu código de confirmación - PadelPro",
+            "Tu código de confirmación es: " + codigoConfirmacion
+        );
 
         return ResponseEntity.ok(Map.of("mensaje", "Código reenviado"));
     }
