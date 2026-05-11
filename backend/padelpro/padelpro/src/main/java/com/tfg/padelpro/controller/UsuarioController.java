@@ -64,7 +64,7 @@ public class UsuarioController {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(dto.email());
             message.setSubject("Confirma tu cuenta - PadelPro");
-            message.setText("Tu código de confirmación es: " + codigoConfirmacion + "\n\n精神和气");
+            message.setText("Tu código de confirmación es: " + codigoConfirmacion);
             message.setFrom("juaneloyortizlara@gmail.com");
             mailSender.send(message);
         } catch (Exception e) {

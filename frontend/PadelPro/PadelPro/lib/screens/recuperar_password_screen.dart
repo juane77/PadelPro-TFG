@@ -71,24 +71,10 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
       return;
     }
 
-    setState(() => _cargando = true);
-
-    final result = await RecuperarService.cambiarPassword(
-      _emailIngresado!,
-      codigo,
-      "",
-    );
-
-    setState(() => _cargando = false);
-
-    if (result["mensaje"] == "Código inválido o expirado") {
-      AppSnackbar.error(context, "Código incorrecto");
-    } else if (result["success"] || result["mensaje"] != null) {
-      setState(() => _step = 2);
-      AppSnackbar.exito(context, "Código verificado");
-    } else {
-      AppSnackbar.error(context, result["mensaje"]);
-    }
+    // Avanzamos al paso 3 sin llamar al backend todavía.
+    // El código se validará junto con la nueva contraseña en _cambiarPassword.
+    setState(() => _step = 2);
+    AppSnackbar.exito(context, "Código introducido. Ahora crea tu nueva contraseña");
   }
 
   Future<void> _cambiarPassword() async {
