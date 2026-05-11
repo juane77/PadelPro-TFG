@@ -1,8 +1,10 @@
 package com.tfg.padelpro.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -104,5 +106,70 @@ public class UsuarioController {
             usuarioRepository.save(u);
             return ResponseEntity.<Object>ok(Map.of("mensaje", "Nombre actualizado correctamente"));
         }).orElse(ResponseEntity.<Object>notFound().build());
+    }
+
+    @PostMapping("/recuperar")
+    public ResponseEntity<?> solicitarRecuperacion(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("mensaje", "El email es obligatorio"));
+        }
+        
+        Usuario u = usuarioRepository.findByEmail(email);
+        
+        if (u == null) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("mensaje", "El email no está registrado"));
+        }
+        
+        String codigo = String.format("%06d", new Random().nextInt(999999));
+        u.setCodigoRecuperacion(codigo);
+        u.setCodigoExpiracion(LocalDateTime.now().plusMinutes(15));
+        usuarioRepository.save(u);
+        
+        return ResponseEntity.ok(Map.of(
+            "mensaje", "Código generado",
+            "codigo", codigo
+        ));
+    }
+
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String codigo = body.get("codigo");
+        String nuevaPassword = body.get("nuevaPassword");
+        
+        if (email == null || codigo == null || nuevaPassword == null) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("mensaje", "Todos los campos son obligatorios"));
+        }
+        
+        Usuario u = usuarioRepository.findByEmail(email);
+        
+        if (u == null) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("mensaje", "Usuario no encontrado"));
+        }
+        
+        if (u.getCodigoRecuperacion() == null || 
+            !u.getCodigoRecuperacion().equals(codigo) ||
+            u.getCodigoExpiracion() == null ||
+            u.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("mensaje", "Código inválido o expirado"));
+        }
+        
+        if (nuevaPassword.length() < 4) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("mensaje", "La contraseña debe tener al menos 4 caracteres"));
+        }
+        
+        u.setPassword(passwordEncoder.encode(nuevaPassword));
+        u.setCodigoRecuperacion(null);
+        u.setCodigoExpiracion(null);
+        usuarioRepository.save(u);
+        
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente"));
     }
 }

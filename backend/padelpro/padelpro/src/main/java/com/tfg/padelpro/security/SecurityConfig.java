@@ -62,6 +62,8 @@ public class SecurityConfig {
                     // API pública
                     "/api/usuarios/login",
                     "/api/usuarios/registrar",
+                    "/api/usuarios/recuperar",
+                    "/api/usuarios/cambiar-password",
                     "/api/pistas",
                     "/api/pistas/**",
                     "/api/noticias",

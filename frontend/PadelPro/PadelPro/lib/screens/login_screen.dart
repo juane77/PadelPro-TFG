@@ -5,6 +5,7 @@ import '../service/session.dart';
 import '../utils/app_snackbar.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
+import 'recuperar_password_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -156,7 +157,25 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(height: h * 0.025),
+                        const SizedBox(height: 16),
+
+                        TextButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RecuperarPasswordScreen()),
+                          ),
+                          child: const Text(
+                            "¿Olvidaste tu contraseña?",
+                            style: TextStyle(
+                              color: Color(0xFF1F5DA0),
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -1,6 +1,7 @@
 package com.tfg.padelpro.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,6 +46,12 @@ public class Usuario {
     @JoinColumn(name = "id_club", nullable = true)
     private Club club;
 
+    @Column(name = "codigo_recuperacion")
+    private String codigoRecuperacion;
+
+    @Column(name = "codigo_expiracion")
+    private LocalDateTime codigoExpiracion;
+
     protected Usuario() {}
 
     public Usuario(String nombre, String email, String password) {
@@ -62,6 +69,7 @@ public class Usuario {
     public String getEmail() { return email; }
     public String getRol() { return rol; }
     public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     public void setRol(String rol) { this.rol = rol; }
     public int getPelotas() { return pelotas; }
     public void setPelotas(int pelotas) { this.pelotas = pelotas; }
@@ -69,4 +77,8 @@ public class Usuario {
     public void setUltimoLogin(LocalDate ultimoLogin) { this.ultimoLogin = ultimoLogin; }
     public Club getClub() { return club; }
     public void setClub(Club club) { this.club = club; }
+    public String getCodigoRecuperacion() { return codigoRecuperacion; }
+    public void setCodigoRecuperacion(String codigo) { this.codigoRecuperacion = codigo; }
+    public LocalDateTime getCodigoExpiracion() { return codigoExpiracion; }
+    public void setCodigoExpiracion(LocalDateTime exp) { this.codigoExpiracion = exp; }
 }
