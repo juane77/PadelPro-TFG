@@ -15,6 +15,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
 
   bool aceptarTerminos = false;
+  bool _cargando = false;
 
   final nombreController = TextEditingController();
   final emailController = TextEditingController();
@@ -52,26 +53,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
+    setState(() => _cargando = true);
+
     try {
       final response = await http.post(
         Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/registrar"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"nombre": nombre, "email": email, "password": password}),
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(const Duration(seconds: 60));
+
+      setState(() => _cargando = false);
 
       if (response.statusCode == 201) {
         if (!context.mounted) return;
         AppSnackbar.exito(context, "Usuario registrado correctamente");
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => ConfirmarEmailScreen(email: email, esRegistro: true)),
+          MaterialPageRoute(builder: (_) => ConfirmarEmailScreen(email: emailController.text.trim(), esRegistro: true)),
           (route) => false,
         );
       } else {
         final data = json.decode(response.body);
+        if (!context.mounted) return;
         AppSnackbar.error(context, data["mensaje"]);
       }
     } catch (e) {
+      setState(() => _cargando = false);
+      if (!context.mounted) return;
       AppSnackbar.error(context, "Error de conexión. Inténtalo de nuevo.");
     }
   }
@@ -204,14 +212,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () => registrar(context),
-                        child: Text(
-                          "Registrarse",
-                          style: TextStyle(
-                            fontSize: (w * 0.05).clamp(16.0, 22.0),
-                            fontFamily: "Poppins",
-                          ),
-                        ),
+                        onPressed: _cargando ? null : () => registrar(context),
+                        child: _cargando
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                "Registrarse",
+                                style: TextStyle(
+                                  fontSize: (w * 0.05).clamp(16.0, 22.0),
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
                       ),
                     ),
 

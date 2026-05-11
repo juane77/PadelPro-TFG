@@ -8,8 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class PadelproApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PadelproApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(PadelproApplication.class, args);
+    }
 }

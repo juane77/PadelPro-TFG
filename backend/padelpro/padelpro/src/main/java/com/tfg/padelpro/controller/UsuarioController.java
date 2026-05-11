@@ -51,15 +51,15 @@ public class UsuarioController {
         if (usuarioRepository.findByEmail(dto.email()) != null) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está registrado"));
         }
-        
+
         String passwordHasheada = passwordEncoder.encode(dto.password());
         String codigoConfirmacion = String.format("%06d", new Random().nextInt(999999));
-        
+
         Usuario nuevo = new Usuario(dto.nombre(), dto.email(), passwordHasheada);
         nuevo.setEmailVerificado(false);
         nuevo.setCodigoConfirmacion(codigoConfirmacion);
         Usuario guardado = usuarioRepository.save(nuevo);
-        
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(dto.email());
@@ -68,8 +68,9 @@ public class UsuarioController {
             message.setFrom("juaneloyortizlara@gmail.com");
             mailSender.send(message);
         } catch (Exception e) {
+            System.err.println("ERROR al enviar email de confirmación: " + e.getMessage());
         }
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "id", guardado.getId(),
                 "nombre", guardado.getNombre(),
@@ -86,7 +87,7 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensaje", "Email o contraseña incorrectos"));
         }
-        
+
         if (!Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("mensaje", "Debes confirmar tu email primero", "emailNoVerificado", true));
@@ -108,7 +109,6 @@ public class UsuarioController {
         respuesta.put("rol", u.getRol());
         respuesta.put("token", token);
         respuesta.put("pelotas", u.getPelotas());
-        // Devolver idClub para que el panel sepa qué club filtrar
         respuesta.put("idClub", u.getClub() != null ? u.getClub().getId() : null);
         respuesta.put("clubNombre", u.getClub() != null ? u.getClub().getNombre() : null);
 
@@ -138,26 +138,26 @@ public class UsuarioController {
     @PostMapping("/recuperar")
     public ResponseEntity<?> solicitarRecuperacion(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        
+
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email es obligatorio"));
         }
-        
+
         Usuario u = usuarioRepository.findByEmail(email);
-        
+
         if (u == null) {
             return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado, te hemos enviado un código"));
         }
-        
+
         if (!Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado y confirmado, te hemos enviado un código"));
         }
-        
+
         String codigo = String.format("%06d", new Random().nextInt(999999));
         u.setCodigoRecuperacion(codigo);
         u.setCodigoExpiracion(LocalDateTime.now().plusMinutes(15));
         usuarioRepository.save(u);
-        
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
@@ -166,8 +166,9 @@ public class UsuarioController {
             message.setFrom("juaneloyortizlara@gmail.com");
             mailSender.send(message);
         } catch (Exception e) {
+            System.err.println("ERROR al enviar email de recuperación: " + e.getMessage());
         }
-        
+
         return ResponseEntity.ok(Map.of("mensaje", "Si el email está registrado y confirmado, te hemos enviado un código"));
     }
 
@@ -176,37 +177,37 @@ public class UsuarioController {
         String email = body.get("email");
         String codigo = body.get("codigo");
         String nuevaPassword = body.get("nuevaPassword");
-        
+
         if (email == null || codigo == null || nuevaPassword == null) {
             return ResponseEntity.badRequest()
                 .body(Map.of("mensaje", "Todos los campos son obligatorios"));
         }
-        
+
         Usuario u = usuarioRepository.findByEmail(email);
-        
+
         if (u == null) {
             return ResponseEntity.badRequest()
                 .body(Map.of("mensaje", "Usuario no encontrado"));
         }
-        
-        if (u.getCodigoRecuperacion() == null || 
+
+        if (u.getCodigoRecuperacion() == null ||
             !u.getCodigoRecuperacion().equals(codigo) ||
             u.getCodigoExpiracion() == null ||
             u.getCodigoExpiracion().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest()
                 .body(Map.of("mensaje", "Código inválido o expirado"));
         }
-        
+
         if (nuevaPassword.length() < 4) {
             return ResponseEntity.badRequest()
                 .body(Map.of("mensaje", "La contraseña debe tener al menos 4 caracteres"));
         }
-        
+
         u.setPassword(passwordEncoder.encode(nuevaPassword));
         u.setCodigoRecuperacion(null);
         u.setCodigoExpiracion(null);
         usuarioRepository.save(u);
-        
+
         return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente"));
     }
 
@@ -214,54 +215,54 @@ public class UsuarioController {
     public ResponseEntity<?> confirmarEmail(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String codigo = body.get("codigo");
-        
+
         if (email == null || codigo == null) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "Todos los campos son obligatorios"));
         }
-        
+
         Usuario u = usuarioRepository.findByEmail(email);
-        
+
         if (u == null) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "Usuario no encontrado"));
         }
-        
+
         if (Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está confirmado"));
         }
-        
+
         if (u.getCodigoConfirmacion() == null || !u.getCodigoConfirmacion().equals(codigo)) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "Código incorrecto"));
         }
-        
+
         u.setEmailVerificado(true);
         u.setCodigoConfirmacion(null);
         usuarioRepository.save(u);
-        
+
         return ResponseEntity.ok(Map.of("mensaje", "Email confirmado correctamente"));
     }
 
     @PostMapping("/reenviar-confirmacion")
     public ResponseEntity<?> reenviarConfirmacion(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        
+
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email es obligatorio"));
         }
-        
+
         Usuario u = usuarioRepository.findByEmail(email);
-        
+
         if (u == null) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email no está registrado"));
         }
-        
+
         if (Boolean.TRUE.equals(u.isEmailVerificado())) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "El email ya está confirmado"));
         }
-        
+
         String codigoConfirmacion = String.format("%06d", new Random().nextInt(999999));
         u.setCodigoConfirmacion(codigoConfirmacion);
         usuarioRepository.save(u);
-        
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
@@ -272,7 +273,7 @@ public class UsuarioController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("mensaje", "Error al enviar email"));
         }
-        
+
         return ResponseEntity.ok(Map.of("mensaje", "Código reenviado"));
     }
 }

@@ -46,12 +46,17 @@ class LoginScreen extends StatelessWidget {
         Session.email = data["email"];
         Session.token = data["token"];
         Session.pelotas = data["pelotas"] ?? 0;
+        Session.rol = data["rol"];
+        Session.idClub = data["idClub"];
+        Session.clubNombre = data["clubNombre"];
+        if (!context.mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
         final data = json.decode(response.body);
+        if (!context.mounted) return;
         if (data["emailNoVerificado"] == true) {
           _mostrarDialogoEmailNoVerificado(context, email);
         } else {
@@ -59,6 +64,7 @@ class LoginScreen extends StatelessWidget {
         }
       }
     } catch (e) {
+      if (!context.mounted) return;
       AppSnackbar.error(context, "Error de conexión. Inténtalo de nuevo.");
     }
   }
@@ -78,6 +84,7 @@ class LoginScreen extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(context);
               final result = await RecuperarService.reenviarConfirmacion(email);
+              if (!context.mounted) return;
               if (result["success"]) {
                 Navigator.push(
                   context,

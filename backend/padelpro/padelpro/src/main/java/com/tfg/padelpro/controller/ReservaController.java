@@ -2,6 +2,7 @@ package com.tfg.padelpro.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,6 @@ public class ReservaController {
         this.notificacionService = notificacionService;
     }
 
-    // 🔵 CREAR RESERVA
     @PostMapping
     public ResponseEntity<?> crearReserva(@Valid @RequestBody ReservaRequestDTO dto) {
 
@@ -74,7 +74,6 @@ public class ReservaController {
         long reservasUsuario = reservaRepository.countByUsuarioIdAndEstado(dto.usuarioId(), "ACTIVA");
 
         if (reservasUsuario >= 5) {
-            // 🔔 NOTIFICACIÓN ALERTA — límite alcanzado
             notificacionService.alerta(usuario,
                     "Has alcanzado el límite máximo de 5 reservas activas");
             return ResponseEntity.badRequest()
@@ -92,7 +91,6 @@ public class ReservaController {
                     .body(Map.of("mensaje", "Solo puedes tener una reserva por día"));
         }
 
-        // 🎾 COMPROBAR PELOTAS SUFICIENTES
         if (usuario.getPelotas() < 15) {
             return ResponseEntity.badRequest()
                     .body(Map.of("mensaje", "No tienes pelotas suficientes para reservar (necesitas 15)"));
@@ -101,11 +99,9 @@ public class ReservaController {
         Reserva nueva = new Reserva(usuario, pista, dto.fechaReserva());
         Reserva guardada = reservaRepository.save(nueva);
 
-        // 🎾 RESTAR 15 PELOTAS
         usuario.setPelotas(usuario.getPelotas() - 15);
         usuarioRepository.save(usuario);
 
-        // 🔔 NOTIFICACIÓN INFO — reserva creada
         notificacionService.info(usuario,
                 "Reserva confirmada en " + pista.getNombre() +
                 " el " + dto.fechaReserva().getDayOfMonth() +
@@ -121,7 +117,6 @@ public class ReservaController {
         ));
     }
 
-    // 🔴 CANCELAR RESERVA
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<?> cancelarReserva(@PathVariable Long id) {
 
@@ -148,12 +143,10 @@ public class ReservaController {
         reserva.setEstado("CANCELADA");
         reservaRepository.save(reserva);
 
-        // 🎾 DEVOLVER 10 PELOTAS (pierden 5 por cancelar)
         Usuario usuario = reserva.getUsuario();
         usuario.setPelotas(usuario.getPelotas() + 10);
         usuarioRepository.save(usuario);
 
-        // 🔔 NOTIFICACIÓN IMPORTANTE — reserva cancelada por el usuario
         notificacionService.importante(reserva.getUsuario(),
                 "Has cancelado tu reserva en " + reserva.getPista().getNombre() +
                 " del " + reserva.getFechaReserva().getDayOfMonth() +
@@ -174,7 +167,18 @@ public class ReservaController {
     }
 
     @GetMapping("/usuario/{id}")
-    public List<Reserva> getReservasUsuario(@PathVariable Long id) {
-        return reservaRepository.findByUsuarioId(id);
+    public ResponseEntity<?> getReservasUsuario(@PathVariable Long id) {
+        List<Reserva> reservas = reservaRepository.findByUsuarioId(id);
+        List<Map<String, Object>> respuesta = reservas.stream().map(r -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", r.getId());
+            map.put("pista", r.getPista().getNombre());
+            map.put("pistaId", r.getPista().getId());
+            map.put("club", r.getPista().getClub().getNombre());
+            map.put("fechaReserva", r.getFechaReserva());
+            map.put("estado", r.getEstado());
+            return map;
+        }).toList();
+        return ResponseEntity.ok(respuesta);
     }
 }
