@@ -60,8 +60,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 201) {
-        final data = json.decode(response.body);
-        final email = emailController.text.trim();
+        if (!context.mounted) return;
+        AppSnackbar.exito(context, "Usuario registrado correctamente");
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => ConfirmarEmailScreen(email: email, esRegistro: true)),
