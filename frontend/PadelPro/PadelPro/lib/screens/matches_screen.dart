@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../service/partido_service.dart';
 import 'partido_detalle_screen.dart';
 import '../service/reserva_service.dart';
@@ -20,6 +22,7 @@ class MatchesScreen extends StatefulWidget {
 class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProviderStateMixin {
 
   bool mostrarPerdidos = false;
+  File? _foto;
   late Future<List<dynamic>> partidos;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
@@ -28,6 +31,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   void initState() {
     super.initState();
     partidos = PartidoService.getTodosLosPartidos(Session.usuarioId!);
+    _cargarFoto();
     _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
@@ -39,9 +43,19 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     super.dispose();
   }
 
+
+  Future<void> _cargarFoto() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
+    if (ruta != null && File(ruta).existsSync()) {
+      setState(() => _foto = File(ruta));
+    }
+  }
+
   void recargar() {
     setState(() {
       partidos = PartidoService.getTodosLosPartidos(Session.usuarioId!);
+    _cargarFoto();
     });
     _animController.forward(from: 0);
   }
@@ -496,6 +510,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           child: Column(
             children: [
               AppHeader(
+                foto: _foto,
                 titulo: "Tus partidos",
                 extra: GestureDetector(
                   onTap: () => setState(() => mostrarPerdidos = !mostrarPerdidos),
@@ -799,4 +814,4 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       ),
     );
   }
-}
+} 

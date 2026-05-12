@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../service/reserva_provider.dart';
 import '../service/api_service.dart';
@@ -26,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Pista>> pistas;
   Position? _posicion;
+  File? _foto;
 
   double _distancia(double lat1, double lng1, double lat2, double lng2) {
     const r = 6371.0;
@@ -41,10 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     pistas = ApiService.getPistas();
+    _cargarFoto();
     _obtenerubicacion();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ReservaProvider>().cargarReservas();
     });
+  }
+
+
+  Future<void> _cargarFoto() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
+    if (ruta != null && File(ruta).existsSync()) {
+      setState(() => _foto = File(ruta));
+    }
   }
 
   Future<void> _obtenerubicacion() async {
@@ -98,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
 
             AppHeader(
+              foto: _foto,
               titulo: "${_saludo()}, ${Session.nombre ?? ""} 👋",
               
               extra: GestureDetector(
