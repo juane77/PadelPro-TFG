@@ -38,7 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     cargarSolicitudesPendientes();
   }
 
-  /// Carga la foto guardada en disco para este usuario
   Future<void> cargarFotoGuardada() async {
     final prefs = await SharedPreferences.getInstance();
     final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
@@ -67,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      // Guardar la ruta en shared_preferences vinculada al usuario
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('foto_perfil_${Session.usuarioId}', picked.path);
       setState(() {
@@ -77,14 +75,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void logout() {
-    Session.usuarioId = null;
-    Session.nombre = null;
-    Session.email = null;
-    Session.token = null;
+    Session.clear();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -138,8 +133,168 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void proximamente(String funcion) {
-    AppSnackbar.aviso(context, "$funcion — próximamente disponible");
+  // VENTANA FLOTANTE DE PELOTAS
+  void mostrarInfoPelotas() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(28),
+            topRight: Radius.circular(28),
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text("🎾", style: TextStyle(fontSize: 48)),
+
+            const SizedBox(height: 12),
+
+            Text(
+              "${Session.pelotas} pelotas",
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: "Poppins",
+                color: Color(0xFF1F5DA0),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              "Tu moneda dentro de PadelPro",
+              style: TextStyle(
+                color: Colors.grey,
+                fontFamily: "Poppins",
+                fontSize: 14,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "¿Para qué sirven?",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Poppins",
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            _infoPelota(Icons.sports_tennis, "Reservar una pista", "Cuesta 15 pelotas por reserva"),
+            const SizedBox(height: 10),
+            _infoPelota(Icons.cancel_outlined, "Cancelar una reserva", "Recuperas 10 pelotas al cancelar"),
+
+            const SizedBox(height: 24),
+
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "¿Cómo conseguir más?",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "Poppins",
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            _infoPelota(Icons.login, "Iniciar sesión cada día", "+5 pelotas por día"),
+            const SizedBox(height: 10),
+            _infoPelota(Icons.emoji_events_outlined, "Ganar partidos", "Próximamente"),
+            const SizedBox(height: 10),
+            _infoPelota(Icons.people_outline, "Invitar amigos", "Próximamente"),
+
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1F5DA0),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  "Entendido",
+                  style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoPelota(IconData icon, String titulo, String subtitulo) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1F5DA0).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: const Color(0xFF1F5DA0), size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                titulo,
+                style: const TextStyle(
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                subtitulo,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontFamily: "Poppins",
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -171,7 +326,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            AppHeader(titulo: "Hola, ${Session.nombre ?? ""} 👋"),
+            AppHeader(titulo: "Hola, ${Session.nombre ?? ""} 👋", foto: image),
 
             Expanded(
               child: SingleChildScrollView(
@@ -234,43 +389,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 16),
 
-                    // SALDO DE PELOTAS
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1F5DA0), Color(0xFF2E7BC4)],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text("🎾", style: TextStyle(fontSize: 22)),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${Session.pelotas} pelotas",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: "Poppins",
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const Text(
-                                "Tu saldo actual",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontFamily: "Poppins",
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                    // SALDO DE PELOTAS — al pulsar abre la ventana flotante
+                    GestureDetector(
+                      onTap: mostrarInfoPelotas,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF1F5DA0), Color(0xFF2E7BC4)],
                           ),
-                        ],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text("🎾", style: TextStyle(fontSize: 22)),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${Session.pelotas} pelotas",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const Text(
+                                  "Tu saldo actual — pulsa para saber más",
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontFamily: "Poppins",
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 10),
+                            const Icon(Icons.info_outline, color: Colors.white70, size: 18),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -285,12 +445,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 15),
 
-                    // 👥 AMIGOS CON BADGE
                     amigosButton(),
 
                     const SizedBox(height: 15),
 
-                    // 🔔 NOTIFICACIONES CON CONTADOR
                     notificacionButton(),
 
                     const SizedBox(height: 15),
@@ -325,7 +483,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // 👥 BOTÓN AMIGOS CON BADGE
   Widget amigosButton() {
     return GestureDetector(
       onTap: () async {
@@ -351,45 +508,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   top: 0,
                   child: Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                     child: Text(
                       solicitudesPendientes > 9 ? "9+" : "$solicitudesPendientes",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
             ],
           ),
-          title: const Text(
-            "Amigos",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Poppins",
-            ),
-          ),
+          title: const Text("Amigos", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
           trailing: solicitudesPendientes > 0
               ? Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
                   child: Text(
                     "$solicitudesPendientes nueva${solicitudesPendientes > 1 ? 's' : ''}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 )
               : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
@@ -399,22 +534,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // BOTÓN NOTIFICACIONES CON BADGE
   Widget notificacionButton() {
     return GestureDetector(
       onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const NotificacionesScreen()),
-        );
+        await Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificacionesScreen()));
         cargarNoLeidas();
       },
       child: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF1F5DA0),
-          borderRadius: BorderRadius.circular(14),
-        ),
+        decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(14)),
         child: ListTile(
           leading: Stack(
             children: [
@@ -425,47 +553,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   top: 0,
                   child: Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                     child: Text(
                       noLeidas > 9 ? "9+" : "$noLeidas",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
             ],
           ),
-          title: const Text(
-            "Notificaciones",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Poppins",
-            ),
-          ),
+          title: const Text("Notificaciones", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
           trailing: noLeidas > 0
               ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              "$noLeidas nueva${noLeidas > 1 ? 's' : ''}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          )
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
+                  child: Text(
+                    "$noLeidas nueva${noLeidas > 1 ? 's' : ''}",
+                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                )
               : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
           onTap: null,
         ),
@@ -473,29 +579,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget profileButton({
-    required IconData icon,
-    required String text,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
+  Widget profileButton({required IconData icon, required String text, required Color color, VoidCallback? onTap}) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         leading: Icon(icon, color: Colors.white),
-        title: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            fontFamily: "Poppins",
-          ),
-        ),
+        title: Text(text, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
         onTap: onTap ?? () {},
       ),

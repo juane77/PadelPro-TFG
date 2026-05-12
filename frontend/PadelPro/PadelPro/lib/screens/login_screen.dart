@@ -9,13 +9,20 @@ import 'register_screen.dart';
 import 'recuperar_password_screen.dart';
 import 'confirmar_email_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _cargando = false;
 
-  Future<void> login(BuildContext context) async {
+  Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
@@ -32,12 +39,16 @@ class LoginScreen extends StatelessWidget {
       return;
     }
 
+    setState(() => _cargando = true);
+
     try {
       final response = await http.post(
         Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/login"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email, "password": password}),
       ).timeout(const Duration(seconds: 30));
+
+      setState(() => _cargando = false);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -64,6 +75,7 @@ class LoginScreen extends StatelessWidget {
         }
       }
     } catch (e) {
+      setState(() => _cargando = false);
       if (!context.mounted) return;
       AppSnackbar.error(context, "Error de conexión. Inténtalo de nuevo.");
     }
@@ -191,14 +203,23 @@ class LoginScreen extends StatelessWidget {
                               ),
                               elevation: 0,
                             ),
-                            onPressed: () => login(context),
-                            child: Text(
-                              "Iniciar Sesión",
-                              style: TextStyle(
-                                fontSize: (w * 0.05).clamp(16.0, 22.0),
-                                fontFamily: "Poppins",
-                              ),
-                            ),
+                            onPressed: _cargando ? null : login,
+                            child: _cargando
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    "Iniciar Sesión",
+                                    style: TextStyle(
+                                      fontSize: (w * 0.05).clamp(16.0, 22.0),
+                                      fontFamily: "Poppins",
+                                    ),
+                                  ),
                           ),
                         ),
 
