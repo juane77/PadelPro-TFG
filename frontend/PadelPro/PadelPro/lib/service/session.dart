@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class Session {
 
   static int? usuarioId;
@@ -8,6 +10,7 @@ class Session {
   static String? rol;
   static int? idClub;
   static String? clubNombre;
+  static File? fotoPerfil;
 
   static Map<String, String> get authHeaders => {
     "Content-Type": "application/json",
@@ -23,5 +26,6 @@ class Session {
     rol = null;
     idClub = null;
     clubNombre = null;
+    fotoPerfil = null;
   }
 }

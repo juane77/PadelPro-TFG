@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../service/session.dart';
@@ -21,7 +19,6 @@ class _NewsScreenState extends State<NewsScreen> {
 
   static const String _apiKey = "fa4f3a36c32c857fe26640fa9de56f77";
 
-  File? _foto;
   List<dynamic> noticias = [];
   bool cargando = true;
   bool error = false;
@@ -30,17 +27,9 @@ class _NewsScreenState extends State<NewsScreen> {
   void initState() {
     super.initState();
     cargarNoticias();
-    _cargarFoto();
   }
 
 
-  Future<void> _cargarFoto() async {
-    final prefs = await SharedPreferences.getInstance();
-    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
-    if (ruta != null && File(ruta).existsSync()) {
-      setState(() => _foto = File(ruta));
-    }
-  }
 
   Future<void> cargarNoticias() async {
     setState(() {
@@ -129,7 +118,7 @@ class _NewsScreenState extends State<NewsScreen> {
           children: [
 
             AppHeader(
-              foto: _foto,
+              foto: Session.fotoPerfil,
               titulo: "Últimas noticias del mundo del pádel",
             ),
 

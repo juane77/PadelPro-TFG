@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../service/reserva_provider.dart';
 import '../service/api_service.dart';
@@ -28,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Pista>> pistas;
   Position? _posicion;
-  File? _foto;
 
   double _distancia(double lat1, double lng1, double lat2, double lng2) {
     const r = 6371.0;
@@ -44,21 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     pistas = ApiService.getPistas();
-    _cargarFoto();
     _obtenerubicacion();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ReservaProvider>().cargarReservas();
+      // DEBUG: comprobar si image3.png carga correctamente
+      final ImageStream stream = const AssetImage("assets/images/image3.png")
+          .resolve(ImageConfiguration.empty);
+      stream.addListener(ImageStreamListener(
+        (info, _) => print("✅ image3.png cargada correctamente"),
+        onError: (error, stack) => print("❌ ERROR cargando image3.png: \$error"),
+      ));
     });
   }
 
-
-  Future<void> _cargarFoto() async {
-    final prefs = await SharedPreferences.getInstance();
-    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
-    if (ruta != null && File(ruta).existsSync()) {
-      setState(() => _foto = File(ruta));
-    }
-  }
 
   Future<void> _obtenerubicacion() async {
     try {
@@ -111,9 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
 
             AppHeader(
-              foto: _foto,
+              foto: Session.fotoPerfil,
               titulo: "${_saludo()}, ${Session.nombre ?? ""} 👋",
-              
               extra: GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
                 child: Container(
@@ -142,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // CONTENIDO
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -152,7 +145,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 24),
 
-                    // SECCIÓN PRÓXIMA RESERVA
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -190,7 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 28),
 
-                    // SECCIÓN PISTAS RECOMENDADAS
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -331,115 +322,113 @@ class _HomeScreenState extends State<HomeScreen> {
 
         const meses = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
 
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              Image.asset(
-                "assets/images/image3.png",
-                width: double.infinity,
-                height: 180,
-                fit: BoxFit.cover,
+        return Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: const DecorationImage(
+              image: AssetImage("assets/images/image3.png"),
+              fit: BoxFit.cover,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1F5DA0).withOpacity(0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1F5DA0).withOpacity(0.3),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.15),
-                      Colors.black.withOpacity(0.65),
+            ],
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.15),
+                  Colors.black.withOpacity(0.65),
+                ],
+              ),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          reserva["pista"],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontFamily: "Poppins",
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        reserva["club"],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${fecha.hour}:00 · 1 hora",
+                            style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              reserva["pista"]["nombre"],
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            reserva["pista"]["club"]["nombre"],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins",
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
-                              const SizedBox(width: 4),
-                              Text(
-                                "${fecha.hour}:00 · 1 hora",
-                                style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
-                              ),
-                            ],
-                          ),
-                        ],
+
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        "${fecha.day}",
+                        style: const TextStyle(
+                          color: Color(0xFF1F5DA0),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
                       ),
-                    ),
-                    // BLOQUE FECHA
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                      Text(
+                        meses[fecha.month - 1],
+                        style: const TextStyle(
+                          color: Color(0xFF1F5DA0),
+                          fontSize: 11,
+                          fontFamily: "Poppins",
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "${fecha.day}",
-                            style: const TextStyle(
-                              color: Color(0xFF1F5DA0),
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "Poppins",
-                            ),
-                          ),
-                          Text(
-                            meses[fecha.month - 1],
-                            style: const TextStyle(
-                              color: Color(0xFF1F5DA0),
-                              fontSize: 11,
-                              fontFamily: "Poppins",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -468,7 +457,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           children: [
 
-            // IMAGEN
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18),
@@ -484,7 +472,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(width: 14),
 
-            // INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
