@@ -331,114 +331,115 @@ class _HomeScreenState extends State<HomeScreen> {
 
         const meses = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
 
-        return Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            image: const DecorationImage(
-              image: AssetImage("assets/images/image3.png"),
-              fit: BoxFit.cover,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF1F5DA0).withOpacity(0.3),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              Image.asset(
+                "assets/images/image3.png",
+                width: double.infinity,
+                height: 180,
+                fit: BoxFit.cover,
               ),
-            ],
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.15),
-                  Colors.black.withOpacity(0.65),
-                ],
-              ),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          reserva["pista"]["nombre"],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Poppins",
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        reserva["pista"]["club"]["nombre"],
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1F5DA0).withOpacity(0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.15),
+                      Colors.black.withOpacity(0.65),
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
-                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              reserva["pista"]["nombre"],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: "Poppins",
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
                           Text(
-                            "${fecha.hour}:00 · 1 hora",
-                            style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
+                            reserva["pista"]["club"]["nombre"],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins",
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
+                              const SizedBox(width: 4),
+                              Text(
+                                "${fecha.hour}:00 · 1 hora",
+                                style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-
-                // BLOQUE FECHA
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        "${fecha.day}",
-                        style: const TextStyle(
-                          color: Color(0xFF1F5DA0),
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins",
-                        ),
+                    ),
+                    // BLOQUE FECHA
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      Text(
-                        meses[fecha.month - 1],
-                        style: const TextStyle(
-                          color: Color(0xFF1F5DA0),
-                          fontSize: 11,
-                          fontFamily: "Poppins",
-                        ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "${fecha.day}",
+                            style: const TextStyle(
+                              color: Color(0xFF1F5DA0),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Poppins",
+                            ),
+                          ),
+                          Text(
+                            meses[fecha.month - 1],
+                            style: const TextStyle(
+                              color: Color(0xFF1F5DA0),
+                              fontSize: 11,
+                              fontFamily: "Poppins",
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

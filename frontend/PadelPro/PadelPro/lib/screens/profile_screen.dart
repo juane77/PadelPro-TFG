@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../service/session.dart';
+import '../service/foto_service.dart';
 import '../service/notificacion_service.dart';
 import '../service/amistad_service.dart';
 import '../utils/app_snackbar.dart';
@@ -64,13 +65,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 80,
+    );
     if (picked != null) {
+      final file = File(picked.path);
+      // Guardar localmente
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('foto_perfil_${Session.usuarioId}', picked.path);
-      setState(() {
-        image = File(picked.path);
-      });
+      await prefs.setString('foto_perfil_\${Session.usuarioId}', picked.path);
+      setState(() => image = file);
+      // Subir a Supabase Storage
+      final url = await FotoService.subirFoto(file);
+      if (url != null) {
+        print("Foto subida correctamente: \$url");
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../service/amistad_service.dart';
+import '../service/foto_service.dart';
 import '../utils/app_snackbar.dart';
 
 class AmigosScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
   final _searchController = TextEditingController();
 
   List<dynamic> amigos = [];
+  Map<int, String?> _fotosAmigos = {};
   List<dynamic> pendientes = [];
   List<dynamic> resultadosBusqueda = [];
   bool buscando = false;
@@ -43,6 +45,22 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
       pendientes = p;
       cargando = false;
     });
+    await _cargarFotosAmigos(a);
+    if (mounted) setState(() {
+    });
+  }
+
+
+  Future<void> _cargarFotosAmigos(List<dynamic> lista) async {
+    final Map<int, String?> fotos = {};
+    for (final a in lista) {
+      final id = a["id"] ?? a["idUsuario"];
+      if (id != null) {
+        final tiene = await FotoService.tieneFoto(id);
+        fotos[id] = tiene ? FotoService.getUrlFoto(id) : null;
+      }
+    }
+    if (mounted) setState(() => _fotosAmigos = fotos);
   }
 
   Future<void> _buscar(String q) async {
@@ -123,7 +141,12 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
         leading: CircleAvatar(
           radius: 24,
           backgroundColor: const Color(0xFF1F5DA0).withOpacity(0.15),
-          child: Text(inicial, style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 18)),
+          backgroundImage: _fotosAmigos[amigo["id"]] != null
+              ? NetworkImage(_fotosAmigos[amigo["id"]]!) as ImageProvider
+              : null,
+          child: _fotosAmigos[amigo["id"]] == null
+              ? Text(inicial, style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 18))
+              : null,
         ),
         title: Text(amigo["nombre"], style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold)),
         subtitle: Text(amigo["email"], style: const TextStyle(fontFamily: "Poppins", fontSize: 12, color: Colors.grey)),

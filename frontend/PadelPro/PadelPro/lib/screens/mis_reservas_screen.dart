@@ -223,7 +223,7 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              reserva["pista"]["nombre"],
+                              reserva["pista"],
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -232,7 +232,7 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              reserva["pista"]["club"]["nombre"],
+                              reserva["club"],
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey,
@@ -295,4 +295,4 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
       ),
     );
   }
-} 
+}

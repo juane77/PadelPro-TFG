@@ -75,6 +75,12 @@ class _ReservationCalendarScreenState
       int.parse(partes[1]),
     );
 
+    // Validar que la hora no haya pasado
+    if (fechaReserva.isBefore(DateTime.now())) {
+      AppSnackbar.error(context, "No puedes reservar una hora que ya ha pasado");
+      return;
+    }
+
     try {
       bool ok = await ReservaService.crearReserva(
         usuarioId: Session.usuarioId!,
