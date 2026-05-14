@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Colors.red; // Azul exacto de Figma
-}
+  static const primary = Colors.blue; // Azul exacto de Figma
+} 

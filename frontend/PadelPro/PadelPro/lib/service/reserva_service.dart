@@ -17,7 +17,7 @@ class ReservaService {
     final response = await http.get(
       Uri.parse("$baseUrl/reservas/pista/$pistaId?fecha=$fechaStr"),
       headers: Session.authHeaders,
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
 
@@ -50,12 +50,12 @@ class ReservaService {
         "pistaId": pistaId,
         "fechaReserva": fecha.toIso8601String()
       }),
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 201) {
       return true;
     }
-
+    Session.checkAuth(response);
     final data = json.decode(response.body);
     throw Exception(data["mensaje"]);
   }
@@ -65,12 +65,12 @@ class ReservaService {
     final response = await http.get(
       Uri.parse("$baseUrl/reservas/usuario/$usuarioId"),
       headers: Session.authHeaders,
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
     }
-
+    Session.checkAuth(response);
     return [];
   }
 
@@ -79,12 +79,12 @@ class ReservaService {
     final response = await http.put(
       Uri.parse("$baseUrl/reservas/$reservaId/cancelar"),
       headers: Session.authHeaders,
-    );
+    ).timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       return true;
     }
-
+    Session.checkAuth(response);
     final data = json.decode(response.body);
     throw Exception(data["mensaje"]);
   }

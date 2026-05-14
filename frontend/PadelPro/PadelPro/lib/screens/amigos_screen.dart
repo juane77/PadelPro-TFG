@@ -19,6 +19,7 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
   Map<int, String?> _fotosAmigos = {};
   List<dynamic> pendientes = [];
   List<dynamic> resultadosBusqueda = [];
+  Map<int, String?> _fotosBusqueda = {};
   bool buscando = false;
   bool cargando = true;
 
@@ -74,6 +75,19 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
       resultadosBusqueda = res;
       buscando = false;
     });
+    await _cargarFotosBusqueda(res);
+  }
+
+  Future<void> _cargarFotosBusqueda(List<dynamic> lista) async {
+    final Map<int, String?> fotos = {};
+    for (final u in lista) {
+      final id = u["id"];
+      if (id != null) {
+        final tiene = await FotoService.tieneFoto(id);
+        fotos[id] = tiene ? FotoService.getUrlFoto(id) : null;
+      }
+    }
+    if (mounted) setState(() => _fotosBusqueda = fotos);
   }
 
   @override
@@ -304,7 +318,12 @@ class _AmigosScreenState extends State<AmigosScreen> with SingleTickerProviderSt
         leading: CircleAvatar(
           radius: 24,
           backgroundColor: const Color(0xFF1F5DA0).withOpacity(0.1),
-          child: Text(inicial, style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 18)),
+          backgroundImage: _fotosBusqueda[u["id"]] != null
+              ? NetworkImage(_fotosBusqueda[u["id"]]!)
+              : null,
+          child: _fotosBusqueda[u["id"]] == null
+              ? Text(inicial, style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 18))
+              : null,
         ),
         title: Text(u["nombre"], style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold)),
         subtitle: Text(u["email"], style: const TextStyle(fontFamily: "Poppins", fontSize: 12, color: Colors.grey)),

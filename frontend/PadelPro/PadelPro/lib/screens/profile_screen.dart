@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../service/session.dart';
+import '../service/foto_service.dart';
 import '../service/notificacion_service.dart';
 import '../service/amistad_service.dart';
 import '../utils/app_snackbar.dart';
@@ -26,7 +27,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
 
-  File? image;
   int noLeidas = 0;
   int solicitudesPendientes = 0;
 
@@ -39,16 +39,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> cargarFotoGuardada() async {
-    if (Session.fotoPerfil != null) {
-      setState(() => image = Session.fotoPerfil);
+    if (Session.fotoUrl != null) {
+      setState(() {});
       return;
     }
     final prefs = await SharedPreferences.getInstance();
-    final ruta = prefs.getString('foto_perfil_${Session.usuarioId}');
-    if (ruta != null && File(ruta).existsSync()) {
-      final foto = File(ruta);
-      Session.fotoPerfil = foto;
-      setState(() => image = foto);
+    final url = prefs.getString('foto_url_${Session.usuarioId}');
+    if (url != null) {
+      Session.fotoUrl = url;
+      setState(() {});
     }
   }
 
@@ -70,11 +69,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('foto_perfil_${Session.usuarioId}', picked.path);
-      setState(() {
-        image = File(picked.path);
-      });
+      AppSnackbar.aviso(context, "Subiendo foto...");
+      final url = await FotoService.subirFoto(File(picked.path));
+      if (url != null) {
+        Session.fotoUrl = url;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('foto_url_${Session.usuarioId}', url);
+        setState(() {});
+        AppSnackbar.exito(context, "Foto de perfil actualizada");
+      } else {
+        AppSnackbar.error(context, "Error al subir la foto");
+      }
     }
   }
 
@@ -118,13 +123,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Uri.parse("https://padelpro-tfg.onrender.com/api/usuarios/${Session.usuarioId}/nombre"),
                   headers: Session.authHeaders,
                   body: jsonEncode({"nombre": nuevoNombre}),
-                );
+                ).timeout(const Duration(seconds: 15));
                 if (response.statusCode == 200) {
                   setState(() {
                     Session.nombre = nuevoNombre;
                   });
                   Navigator.pop(context);
                   AppSnackbar.exito(context, "Nombre actualizado correctamente");
+                } else if (response.statusCode == 401) {
+                  Session.checkAuth(response);
+                  if (context.mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => LoginScreen()),
+                      (route) => false,
+                    );
+                  }
                 } else {
                   AppSnackbar.error(context, "Error al actualizar el nombre");
                 }
@@ -330,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            AppHeader(titulo: "Hola, ${Session.nombre ?? ""} 👋", foto: image),
+            AppHeader(titulo: "Hola, ${Session.nombre ?? ""} 👋", fotoUrl: Session.fotoUrl),
 
             Expanded(
               child: SingleChildScrollView(
@@ -357,8 +371,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: MediaQuery.of(context).size.width * 0.15,
-                            backgroundImage: image != null
-                                ? FileImage(image!)
+                            backgroundImage: Session.fotoUrl != null
+                                ? NetworkImage(Session.fotoUrl!)
                                 : const AssetImage("assets/images/profile.jpg") as ImageProvider,
                           ),
                           Positioned(

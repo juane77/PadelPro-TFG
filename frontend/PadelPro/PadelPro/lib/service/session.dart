@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class Session {
 
@@ -10,12 +10,20 @@ class Session {
   static String? rol;
   static int? idClub;
   static String? clubNombre;
-  static File? fotoPerfil;
+  static String? fotoUrl;
 
   static Map<String, String> get authHeaders => {
     "Content-Type": "application/json",
     "Authorization": "Bearer $token",
   };
+
+  static bool checkAuth(http.Response response) {
+    if (response.statusCode == 401) {
+      clear();
+      return false;
+    }
+    return true;
+  }
 
   static void clear() {
     usuarioId = null;
@@ -26,6 +34,6 @@ class Session {
     rol = null;
     idClub = null;
     clubNombre = null;
-    fotoPerfil = null;
+    fotoUrl = null;
   }
 }

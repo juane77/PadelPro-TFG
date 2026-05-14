@@ -118,7 +118,7 @@ class _NewsScreenState extends State<NewsScreen> {
           children: [
 
             AppHeader(
-              foto: Session.fotoPerfil,
+              fotoUrl: Session.fotoUrl,
               titulo: "Últimas noticias del mundo del pádel",
             ),
 

@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
 
             AppHeader(
-              foto: Session.fotoPerfil,
+              fotoUrl: Session.fotoUrl,
               titulo: "${_saludo()}, ${Session.nombre ?? ""} 👋",
               extra: GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),

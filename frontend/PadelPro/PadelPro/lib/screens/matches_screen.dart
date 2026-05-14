@@ -498,7 +498,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           child: Column(
             children: [
               AppHeader(
-                foto: Session.fotoPerfil,
+                fotoUrl: Session.fotoUrl,
                 titulo: "Tus partidos",
                 extra: GestureDetector(
                   onTap: () => setState(() => mostrarPerdidos = !mostrarPerdidos),

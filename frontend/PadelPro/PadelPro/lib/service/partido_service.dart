@@ -11,8 +11,9 @@ class PartidoService {
     final response = await http.get(
       Uri.parse("$baseUrl/partidos/usuario/$usuarioId"),
       headers: Session.authHeaders,
-    );
+    ).timeout(const Duration(seconds: 15));
     if (response.statusCode == 200) return json.decode(response.body);
+    Session.checkAuth(response);
     return [];
   }
 
@@ -22,8 +23,9 @@ class PartidoService {
       final response = await http.get(
         Uri.parse("$baseUrl/partidos/invitado/$usuarioId"),
         headers: Session.authHeaders,
-      );
+      ).timeout(const Duration(seconds: 15));
       if (response.statusCode == 200) return json.decode(response.body);
+      Session.checkAuth(response);
     } catch (_) {}
     return [];
   }
@@ -64,8 +66,9 @@ class PartidoService {
       Uri.parse("$baseUrl/partidos"),
       headers: Session.authHeaders,
       body: jsonEncode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
     if (response.statusCode == 201) return true;
+    Session.checkAuth(response);
     final data = json.decode(response.body);
     throw Exception(data["mensaje"]);
   }

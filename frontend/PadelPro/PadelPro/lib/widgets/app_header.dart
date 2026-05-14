@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../service/session.dart';
 
@@ -6,13 +5,13 @@ class AppHeader extends StatelessWidget {
 
   final String titulo;
   final Widget? extra;
-  final File? foto;
+  final String? fotoUrl;
 
   const AppHeader({
     super.key,
     required this.titulo,
     this.extra,
-    this.foto,
+    this.fotoUrl,
   });
 
   @override
@@ -55,8 +54,10 @@ class AppHeader extends StatelessWidget {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.white.withOpacity(0.25),
-                backgroundImage: foto != null ? FileImage(foto!) : null,
-                child: foto == null
+                backgroundImage: fotoUrl != null
+                    ? NetworkImage(fotoUrl!)
+                    : null,
+                child: fotoUrl == null
                     ? Text(
                         inicial,
                         style: const TextStyle(
