@@ -127,10 +127,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
             // Datos de la reserva seleccionada
             String pistaNombre = reservaSeleccionada != null
-                ? reservaSeleccionada["pista"]["nombre"]
+                ? reservaSeleccionada["pista"]
                 : "";
             String clubNombre = reservaSeleccionada != null
-                ? reservaSeleccionada["pista"]["club"]["nombre"]
+                ? reservaSeleccionada["club"]
                 : "";
             DateTime? fechaReserva = reservaSeleccionada != null
                 ? DateTime.parse(reservaSeleccionada["fechaReserva"])
@@ -213,7 +213,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                                   children: [
                                     Icon(Icons.sports_tennis, color: seleccionada ? Colors.white70 : Colors.grey.shade400, size: 18),
                                     Text(
-                                      r["pista"]["nombre"],
+                                      r["pista"],
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 13, color: seleccionada ? Colors.white : Colors.black87),
@@ -426,7 +426,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                           double? nivel = double.tryParse(nivelController.text.replaceAll(",", "."));
                           if (nivel == null) { AppSnackbar.aviso(context, "El nivel no es válido"); return; }
 
-                          final pistaId = reservaSeleccionada["pista"]["id"] as int;
+                          final pistaId = reservaSeleccionada["pistaId"] as int;
                           final reservaId = reservaSeleccionada["id"] as int;
                           final fechaPartido = DateTime.parse(reservaSeleccionada["fechaReserva"]);
                           final amigosIds = amigosSeleccionados.map((a) => a["id"].toString()).join(",");
