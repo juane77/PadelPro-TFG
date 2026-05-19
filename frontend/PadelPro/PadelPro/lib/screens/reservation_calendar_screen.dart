@@ -6,6 +6,7 @@ import '../service/reserva_service.dart';
 import '../service/session.dart';
 import '../service/notification_push_service.dart';
 import '../service/reserva_provider.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 
 class ReservationCalendarScreen extends StatefulWidget {
@@ -130,6 +131,7 @@ class _ReservationCalendarScreenState
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
@@ -142,17 +144,17 @@ class _ReservationCalendarScreenState
           children: [
             Text(
               widget.pista.nombre,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: "Poppins",
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: Responsive.font(18),
               ),
             ),
             Text(
               widget.pista.clubNombre,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: "Poppins",
-                fontSize: 12,
+                fontSize: Responsive.font(12),
                 color: Colors.white70,
               ),
             ),
@@ -160,23 +162,23 @@ class _ReservationCalendarScreenState
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: EdgeInsets.only(right: Responsive.padding(16)),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.padding(12), vertical: Responsive.padding(6)),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               children: [
-                const Text("🎾", style: TextStyle(fontSize: 14)),
-                const SizedBox(width: 4),
+                Text("🎾", style: TextStyle(fontSize: Responsive.font(14))),
+                SizedBox(width: Responsive.w(1)),
                 Text(
                   "${Session.pelotas}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontFamily: "Poppins",
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: Responsive.font(14),
                   ),
                 ),
               ],
@@ -188,7 +190,6 @@ class _ReservationCalendarScreenState
       body: Column(
         children: [
 
-          // CABECERA AZUL CON CALENDARIO
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF1F5DA0),
@@ -201,61 +202,56 @@ class _ReservationCalendarScreenState
               firstDay: DateTime.now(),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: selectedDay,
-
               selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-
               onDaySelected: (selectedDayParam, focusedDay) {
                 setState(() {
                   selectedDay = selectedDayParam;
                 });
                 cargarReservasDia();
               },
-
               eventLoader: (day) {
                 DateTime fecha = DateTime(day.year, day.month, day.day);
                 return reservasPorDia[fecha] ?? [];
               },
-
-              headerStyle: const HeaderStyle(
+              headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
                 titleTextStyle: TextStyle(
                   color: Colors.white,
-                  fontSize: 17,
+                  fontSize: Responsive.font(17),
                   fontWeight: FontWeight.bold,
                   fontFamily: "Poppins",
                 ),
-                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
-                rightChevronIcon: Icon(Icons.chevron_right, color: Colors.white),
+                leftChevronIcon: const Icon(Icons.chevron_left, color: Colors.white),
+                rightChevronIcon: const Icon(Icons.chevron_right, color: Colors.white),
               ),
-
-              daysOfWeekStyle: const DaysOfWeekStyle(
+              daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle: TextStyle(
                   color: Colors.white70,
                   fontFamily: "Poppins",
-                  fontSize: 12,
+                  fontSize: Responsive.font(12),
                 ),
                 weekendStyle: TextStyle(
                   color: Colors.white54,
                   fontFamily: "Poppins",
-                  fontSize: 12,
+                  fontSize: Responsive.font(12),
                 ),
               ),
-
               calendarStyle: CalendarStyle(
-                defaultTextStyle: const TextStyle(
+                defaultTextStyle: TextStyle(
                   color: Colors.white,
                   fontFamily: "Poppins",
+                  fontSize: Responsive.font(14),
                 ),
-                weekendTextStyle: const TextStyle(
+                weekendTextStyle: TextStyle(
                   color: Colors.white70,
                   fontFamily: "Poppins",
                 ),
-                outsideTextStyle: const TextStyle(
+                outsideTextStyle: TextStyle(
                   color: Colors.white30,
                   fontFamily: "Poppins",
                 ),
-                disabledTextStyle: const TextStyle(
+                disabledTextStyle: TextStyle(
                   color: Colors.white24,
                   fontFamily: "Poppins",
                 ),
@@ -281,55 +277,53 @@ class _ReservationCalendarScreenState
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: Responsive.h(3)),
 
-          // ETIQUETA DÍA SELECCIONADO
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20)),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.padding(14), vertical: Responsive.padding(6)),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1F5DA0),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     "${_nombreDia(selectedDay)} ${selectedDay.day} ${_nombreMes(selectedDay)}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontFamily: "Poppins",
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: Responsive.font(13),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: Responsive.w(2.5)),
                 Text(
                   "${horasReservadas.length} hora${horasReservadas.length == 1 ? '' : 's'} ocupada${horasReservadas.length == 1 ? '' : 's'}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.grey,
                     fontFamily: "Poppins",
-                    fontSize: 13,
+                    fontSize: Responsive.font(13),
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: Responsive.h(1.8)),
 
-          // LISTA DE HORAS
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16)),
               itemCount: horas.length,
               itemBuilder: (context, index) {
                 final hora = horas[index];
                 final ocupada = horasReservadas.contains(hora);
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(bottom: Responsive.h(1.8)),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -342,13 +336,12 @@ class _ReservationCalendarScreenState
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(14)),
                     child: Row(
                       children: [
 
-                        // ICONO RELOJ
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: EdgeInsets.all(Responsive.padding(10)),
                           decoration: BoxDecoration(
                             color: ocupada
                                 ? Colors.red.withOpacity(0.1)
@@ -358,21 +351,20 @@ class _ReservationCalendarScreenState
                           child: Icon(
                             Icons.access_time_rounded,
                             color: ocupada ? Colors.red : const Color(0xFF1F5DA0),
-                            size: 22,
+                            size: Responsive.imageSize(22),
                           ),
                         ),
 
-                        const SizedBox(width: 16),
+                        SizedBox(width: Responsive.w(4)),
 
-                        // HORA Y DURACIÓN
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 hora,
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                style: TextStyle(
+                                  fontSize: Responsive.font(18),
                                   fontWeight: FontWeight.bold,
                                   fontFamily: "Poppins",
                                 ),
@@ -380,7 +372,7 @@ class _ReservationCalendarScreenState
                               Text(
                                 "1 hora · ${ocupada ? 'No disponible' : 'Disponible'}",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: Responsive.font(12),
                                   fontFamily: "Poppins",
                                   color: ocupada ? Colors.red : Colors.grey,
                                 ),
@@ -389,21 +381,20 @@ class _ReservationCalendarScreenState
                           ),
                         ),
 
-                        // BOTÓN O BADGE OCUPADO
                         if (ocupada)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            padding: EdgeInsets.symmetric(horizontal: Responsive.padding(14), vertical: Responsive.padding(8)),
                             decoration: BoxDecoration(
                               color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Ocupado",
                               style: TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins",
-                                fontSize: 13,
+                                fontSize: Responsive.font(13),
                               ),
                             ),
                           )
@@ -413,17 +404,18 @@ class _ReservationCalendarScreenState
                               backgroundColor: const Color(0xFF1F5DA0),
                               foregroundColor: Colors.white,
                               elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(10)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             onPressed: () => reservar(hora),
-                            child: const Text(
+                            child: Text(
                               "Reservar",
                               style: TextStyle(
                                 fontFamily: "Poppins",
                                 fontWeight: FontWeight.bold,
+                                fontSize: Responsive.font(13),
                               ),
                             ),
                           ),
@@ -435,7 +427,7 @@ class _ReservationCalendarScreenState
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: Responsive.h(1.2)),
         ],
       ),
     );

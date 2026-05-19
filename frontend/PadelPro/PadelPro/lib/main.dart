@@ -6,6 +6,7 @@ import 'screens/splash_screen.dart';
 import 'service/notification_push_service.dart';
 import 'service/app_settings.dart';
 import 'service/reserva_provider.dart';
+import 'utils/responsive.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,6 +94,7 @@ class _MyAppState extends State<MyApp> {
 
       // TAMAÑO DE TEXTO GLOBAL
       builder: (context, child) {
+        Responsive.init(context);
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
             textScaler: TextScaler.linear(settings.tamanoTexto),

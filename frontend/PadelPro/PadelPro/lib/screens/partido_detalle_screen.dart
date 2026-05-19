@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/valoracion_service.dart';
 import '../service/session.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 
 class PartidoDetalleScreen extends StatefulWidget {
@@ -55,6 +56,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     final partido = widget.partido;
     final bool ganado = partido["resultadoFinal"] == "GANADO";
     final bool esInvitado = partido["esInvitado"] == true;
@@ -75,7 +77,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
-        title: const Text("Detalle del partido", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold)),
+        title: Text("Detalle del partido", style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(18))),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -95,49 +97,48 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+              padding: EdgeInsets.fromLTRB(Responsive.padding(24), Responsive.padding(28), Responsive.padding(24), Responsive.padding(32)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  // BADGES
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(12), vertical: Responsive.padding(5)),
                         decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
                         child: Row(
                           children: [
-                            Icon(ganado ? Icons.emoji_events_rounded : Icons.sentiment_dissatisfied_rounded, color: Colors.white, size: 14),
-                            const SizedBox(width: 4),
-                            Text(ganado ? "GANADO" : "PERDIDO", style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                            Icon(ganado ? Icons.emoji_events_rounded : Icons.sentiment_dissatisfied_rounded, color: Colors.white, size: Responsive.font(14)),
+                            SizedBox(width: Responsive.w(1)),
+                            Text(ganado ? "GANADO" : "PERDIDO", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(12))),
                           ],
                         ),
                       ),
                       if (verificado) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: Responsive.w(2)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: Responsive.padding(12), vertical: Responsive.padding(5)),
                           decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.verified_rounded, color: Colors.white, size: 14),
-                              SizedBox(width: 4),
-                              Text("Verificado", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                              const Icon(Icons.verified_rounded, color: Colors.white, size: 14),
+                              SizedBox(width: Responsive.w(1)),
+                              Text("Verificado", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(12))),
                             ],
                           ),
                         ),
                       ],
                       if (esInvitado) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: Responsive.w(2)),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: Responsive.padding(12), vertical: Responsive.padding(5)),
                           decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
                           child: Row(
                             children: [
                               const Icon(Icons.people_rounded, color: Colors.white, size: 14),
-                              const SizedBox(width: 4),
-                              const Text("Invitado", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                              SizedBox(width: Responsive.w(1)),
+                              Text("Invitado", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(12))),
                             ],
                           ),
                         ),
@@ -145,31 +146,29 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: Responsive.h(3)),
 
-                  // MARCADOR GRANDE
                   Text(
                     partido["resultado"],
-                    style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: 44, fontWeight: FontWeight.bold, height: 1),
+                    style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: Responsive.font(44), fontWeight: FontWeight.bold, height: 1),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.h(1.2)),
 
                   Text(
                     "${fecha.day} de ${meses[fecha.month - 1]} de ${fecha.year} · ${fecha.hour}:00h",
-                    style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 14),
+                    style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(14)),
                   ),
                 ],
               ),
             ),
 
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(Responsive.padding(16)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  // INFO PISTA Y CLUB
                   _seccion("Pista y club"),
                   _infoCard([
                     _infoRow(Icons.sports_tennis, "Pista", partido["pista"]),
@@ -179,14 +178,13 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                     _infoRow(Icons.bar_chart_rounded, "Nivel medio", "${partido["nivelMedio"]}"),
                   ]),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: Responsive.h(3)),
 
-                  // AMIGOS QUE JUGARON
                   if (amigosIds.isNotEmpty) ...[
                     _seccion("Jugadores"),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(Responsive.padding(16)),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -195,22 +193,20 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Tú siempre estás
                           _jugadorChip(Session.nombre ?? "Tú", true),
-                          const SizedBox(height: 8),
+                          SizedBox(height: Responsive.h(1.2)),
                           Text("+ ${amigosIds.length} amigo${amigosIds.length > 1 ? 's' : ''} invitado${amigosIds.length > 1 ? 's' : ''}",
-                            style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13)),
+                            style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(13))),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: Responsive.h(3)),
                   ],
 
-                  // VALORACIÓN DE LA PISTA
                   _seccion("Valora la pista"),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(Responsive.padding(20)),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -222,34 +218,32 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
 
-                              // MEDIA GLOBAL
                               Row(
                                 children: [
                                   const Icon(Icons.star_rounded, color: Color(0xFFFFB300), size: 28),
                                   const SizedBox(width: 8),
                                   Text(
                                     mediaValoracion.toStringAsFixed(1),
-                                    style: const TextStyle(fontFamily: "Poppins", fontSize: 26, fontWeight: FontWeight.bold),
+                                    style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(26), fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     "($totalValoraciones valoracion${totalValoraciones != 1 ? 'es' : ''})",
-                                    style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13),
+                                    style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(13)),
                                   ),
                                 ],
                               ),
 
-                              const SizedBox(height: 16),
+                              SizedBox(height: Responsive.h(2.5)),
                               const Divider(),
-                              const SizedBox(height: 12),
+                              SizedBox(height: Responsive.h(1.8)),
 
                               Text(
                                 miValoracion > 0 ? "Tu valoración:" : "¿Qué te pareció esta pista?",
-                                style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 14),
+                                style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(14)),
                               ),
-                              const SizedBox(height: 12),
+                              SizedBox(height: Responsive.h(1.8)),
 
-                              // ESTRELLAS INTERACTIVAS
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: List.generate(5, (i) {
@@ -257,14 +251,14 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                                   return GestureDetector(
                                     onTap: () => _valorar(estrella.toDouble()),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                                      padding: EdgeInsets.symmetric(horizontal: Responsive.padding(6)),
                                       child: AnimatedSwitcher(
                                         duration: const Duration(milliseconds: 200),
                                         child: Icon(
                                           estrella <= miValoracion ? Icons.star_rounded : Icons.star_border_rounded,
                                           key: ValueKey('$estrella-$miValoracion'),
                                           color: estrella <= miValoracion ? const Color(0xFFFFB300) : Colors.grey.shade300,
-                                          size: 42,
+                                          size: Responsive.imageSize(42),
                                         ),
                                       ),
                                     ),
@@ -273,7 +267,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                               ),
 
                               if (miValoracion > 0) ...[
-                                const SizedBox(height: 12),
+                                SizedBox(height: Responsive.h(1.8)),
                                 Center(
                                   child: Text(
                                     _textoValoracion(miValoracion),
@@ -285,7 +279,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
                           ),
                   ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: Responsive.h(4.5)),
                 ],
               ),
             ),
@@ -305,12 +299,12 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
 
   Widget _seccion(String titulo) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: Responsive.h(1.5)),
       child: Row(
         children: [
           Container(width: 4, height: 18, decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(2))),
           const SizedBox(width: 8),
-          Text(titulo, style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(titulo, style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(16))),
         ],
       ),
     );
@@ -319,7 +313,7 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
   Widget _infoCard(List<Widget> children) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16), vertical: Responsive.padding(8)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -331,14 +325,14 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
 
   Widget _infoRow(IconData icon, String label, String valor) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.symmetric(vertical: Responsive.h(1.8)),
       child: Row(
         children: [
           Icon(icon, color: const Color(0xFF1F5DA0), size: 20),
-          const SizedBox(width: 12),
-          Text(label, style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13)),
+          SizedBox(width: Responsive.w(3)),
+          Text(label, style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(13))),
           const Spacer(),
-          Text(valor, style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 14)),
+          Text(valor, style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(14))),
         ],
       ),
     );
@@ -351,12 +345,12 @@ class _PartidoDetalleScreenState extends State<PartidoDetalleScreen> {
     return Row(
       children: [
         CircleAvatar(
-          radius: 16,
+          radius: Responsive.imageSize(16),
           backgroundColor: const Color(0xFF1F5DA0).withOpacity(0.1),
-          child: Text(inicial, style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 13)),
+          child: Text(inicial, style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(13))),
         ),
-        const SizedBox(width: 10),
-        Text(esTu ? "$nombre (tú)" : nombre, style: const TextStyle(fontFamily: "Poppins", fontSize: 14, fontWeight: FontWeight.w500)),
+        SizedBox(width: Responsive.w(2.5)),
+        Text(esTu ? "$nombre (tú)" : nombre, style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(14), fontWeight: FontWeight.w500)),
       ],
     );
   }

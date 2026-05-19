@@ -1,29 +1,44 @@
 import 'package:flutter/material.dart';
 
 class Responsive {
-  static late double _width;
-  static late double _height;
+  static late MediaQueryData _mq;
 
   static void init(BuildContext context) {
-    _width = MediaQuery.of(context).size.width;
-    _height = MediaQuery.of(context).size.height;
+    _mq = MediaQuery.of(context);
   }
 
-  // Porcentaje del ancho de pantalla
-  static double w(double percent) => _width * percent / 100;
+  static double get width => _mq.size.width;
+  static double get height => _mq.size.height;
 
-  // Porcentaje del alto de pantalla
-  static double h(double percent) => _height * percent / 100;
+  static bool get isMobile => width < 600;
+  static bool get isTablet => width >= 600 && width < 1024;
+  static bool get isDesktop => width >= 1024;
 
-  // Escala de fuente según ancho (base: 390px = iPhone 14)
-  static double font(double size) => size * (_width / 390).clamp(0.85, 1.2);
+  static double w(double percent) => width * percent / 100;
 
-  // Escala de espaciado
-  static double sp(double size) => size * (_width / 390).clamp(0.85, 1.15);
+  static double h(double percent) => height * percent / 100;
 
-  // Pantalla pequeña (< 360px, ej: Galaxy A series)
-  static bool get isSmall => _width < 360;
+  static double font(double base) {
+    if (isDesktop) return (base * 1.1).clamp(base, base * 1.3);
+    if (isTablet) return (base * 1.05).clamp(base, base * 1.2);
+    return base;
+  }
 
-  // Pantalla grande (> 420px, ej: iPhone Plus, Galaxy Ultra)
-  static bool get isLarge => _width > 420;
+  static double imageSize(double base) {
+    if (isDesktop) return base * 1.2;
+    if (isTablet) return base * 1.1;
+    return base;
+  }
+
+  static double padding(double base) {
+    if (isDesktop) return base * 1.3;
+    if (isTablet) return base * 1.15;
+    return base;
+  }
+
+  static double get maxContentWidth {
+    if (isDesktop) return 520;
+    if (isTablet) return 600;
+    return double.infinity;
+  }
 }

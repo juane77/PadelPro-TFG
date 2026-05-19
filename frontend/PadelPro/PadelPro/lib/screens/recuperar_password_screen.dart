@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../service/recuperar_service.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 import 'login_screen.dart';
 
@@ -118,15 +119,17 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
+    Responsive.init(context);
+    final w = Responsive.width;
+    final h = Responsive.height;
 
     return Scaffold(
       backgroundColor: const Color(0xFF1F5DA0),
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: h * 0.02),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: h * 0.02),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -148,20 +151,19 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
             SizedBox(height: h * 0.01),
             Image.asset("assets/images/logo.png", width: w * 0.30),
             SizedBox(height: h * 0.015),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  horizontal: w * 0.07,
-                  vertical: h * 0.03,
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: w * 0.07,
+                vertical: h * 0.03,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40),
+                  topRight: Radius.circular(40),
                 ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(40),
-                    topRight: Radius.circular(40),
-                  ),
-                ),
+              ),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -196,11 +198,11 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
                     ],
                   ),
                 ),
-              ),
             ),
           ],
         ),
       ),
+    ),
     );
   }
 

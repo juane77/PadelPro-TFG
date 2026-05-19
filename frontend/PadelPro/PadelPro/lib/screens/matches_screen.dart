@@ -4,6 +4,7 @@ import 'partido_detalle_screen.dart';
 import '../service/reserva_service.dart';
 import '../service/amistad_service.dart';
 import '../service/session.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/app_header.dart';
 import 'home_screen.dart';
@@ -94,6 +95,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       final resultados = await Future.wait([
         ReservaService.getReservasUsuario(Session.usuarioId!),
         AmistadService.getAmigos(),
+        PartidoService.getTodosLosPartidos(Session.usuarioId!),
       ]);
       final todasReservas = resultados[0] as List<dynamic>;
       // Solo reservas pasadas (ya jugadas)
@@ -103,6 +105,14 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       }).toList();
       reservasPasadas.sort((a, b) => DateTime.parse(b["fechaReserva"]).compareTo(DateTime.parse(a["fechaReserva"])));
       amigos = resultados[1] as List<dynamic>;
+
+      // Filtrar reservas que ya tienen un partido registrado
+      final partidosExistentes = resultados[2] as List<dynamic>;
+      final reservasUsadas = partidosExistentes
+          .where((p) => p["reservaId"] != null)
+          .map((p) => p["reservaId"] as int)
+          .toSet();
+      reservasPasadas.removeWhere((r) => reservasUsadas.contains(r["id"] as int));
     } catch (e) {
       AppSnackbar.error(context, "Error cargando datos");
       return;
@@ -466,6 +476,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       floatingActionButton: FloatingActionButton.extended(
@@ -530,26 +541,26 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                       slivers: [
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                            padding: EdgeInsets.fromLTRB(Responsive.padding(16), Responsive.h(3), Responsive.padding(16), 0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 if (todos.isNotEmpty) ...[
                                   _heroCard(stats),
-                                  const SizedBox(height: 16),
+                                  SizedBox(height: Responsive.h(2.5)),
                                   _statsRow(stats),
-                                  const SizedBox(height: 24),
+                                  SizedBox(height: Responsive.h(3.5)),
                                 ],
                                 Row(
                                   children: [
                                     Container(width: 4, height: 20, decoration: BoxDecoration(color: const Color(0xFF1F5DA0), borderRadius: BorderRadius.circular(2))),
                                     const SizedBox(width: 8),
-                                    const Text("Historial", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                                    Text("Historial", style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                                     const Spacer(),
-                                    Text("${lista.length} partidos", style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13)),
+                                    Text("${lista.length} partidos", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(13))),
                                   ],
                                 ),
-                                const SizedBox(height: 14),
+                                SizedBox(height: Responsive.h(2)),
                               ],
                             ),
                           ),
@@ -558,25 +569,25 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                         if (lista.isEmpty)
                           SliverToBoxAdapter(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 60),
+                              padding: EdgeInsets.only(top: Responsive.h(9)),
                               child: Column(
                                 children: [
-                                  Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle), child: Icon(Icons.sports_tennis, size: 48, color: Colors.grey.shade400)),
-                                  const SizedBox(height: 16),
-                                  Text(mostrarPerdidos ? "No hay partidos registrados" : "No hay partidos ganados", style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 15)),
-                                  const SizedBox(height: 8),
-                                  Text("Pulsa + para registrar uno", style: TextStyle(color: Colors.grey.shade400, fontFamily: "Poppins", fontSize: 13)),
+                                  Container(padding: EdgeInsets.all(Responsive.padding(24)), decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle), child: Icon(Icons.sports_tennis, size: Responsive.imageSize(48), color: Colors.grey.shade400)),
+                                  SizedBox(height: Responsive.h(2.5)),
+                                  Text(mostrarPerdidos ? "No hay partidos registrados" : "No hay partidos ganados", style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: Responsive.font(15))),
+                                  SizedBox(height: Responsive.h(1.2)),
+                                  Text("Pulsa + para registrar uno", style: TextStyle(color: Colors.grey.shade400, fontFamily: "Poppins", fontSize: Responsive.font(13))),
                                 ],
                               ),
                             ),
                           )
                         else
                           SliverPadding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                            padding: EdgeInsets.fromLTRB(Responsive.padding(16), 0, Responsive.padding(16), Responsive.h(15)),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
+                                  padding: EdgeInsets.only(bottom: Responsive.h(1.8)),
                                   child: GestureDetector(
                                     onTap: () => Navigator.push(
                                       context,
@@ -618,36 +629,36 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           Positioned(right: -20, top: -20, child: Container(width: 120, height: 120, decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle))),
           Positioned(right: 30, bottom: -30, child: Container(width: 80, height: 80, decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), shape: BoxShape.circle))),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(Responsive.padding(22)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)), child: const Text("Rendimiento global", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 12))),
+                    Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)), child: Text("Rendimiento global", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(12)))),
                     const Spacer(),
                     const Icon(Icons.insights_rounded, color: Colors.white54, size: 20),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.h(2.5)),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("${porcentaje.toStringAsFixed(0)}%", style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: 52, fontWeight: FontWeight.bold, height: 1)),
+                    Text("${porcentaje.toStringAsFixed(0)}%", style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: Responsive.font(52), fontWeight: FontWeight.bold, height: 1)),
                     const SizedBox(width: 12),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("victorias", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 14)),
-                          Text("$ganados de $total partidos", style: const TextStyle(color: Colors.white54, fontFamily: "Poppins", fontSize: 12)),
+                          Text("victorias", style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(14))),
+                          Text("$ganados de $total partidos", style: TextStyle(color: Colors.white54, fontFamily: "Poppins", fontSize: Responsive.font(12))),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.h(2.5)),
                 Stack(
                   children: [
                     Container(height: 8, decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(4))),
@@ -657,7 +668,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.h(1.2)),
                 Row(
                   children: [
                     _miniChip("✅ ${stats['ganados']} ganados"),
@@ -677,7 +688,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-      child: Text(texto, style: const TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: 11, fontWeight: FontWeight.w600)),
+      child: Text(texto, style: TextStyle(color: Colors.white, fontFamily: "Poppins", fontSize: Responsive.font(11), fontWeight: FontWeight.w600)),
     );
   }
 
@@ -685,9 +696,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     return Row(
       children: [
         Expanded(child: _statTile(Icons.local_fire_department_rounded, "Racha", "${stats['rachaActual']} 🔥", Colors.deepOrange)),
-        const SizedBox(width: 10),
+        SizedBox(width: Responsive.w(1.5)),
         Expanded(child: _statTile(Icons.emoji_events_rounded, "Mejor racha", "${stats['mejorRacha']} 🏆", const Color(0xFFE8A000))),
-        const SizedBox(width: 10),
+        SizedBox(width: Responsive.w(1.5)),
         Expanded(child: _statTile(Icons.bar_chart_rounded, "Nivel", stats['nivelMedio'].toStringAsFixed(1), const Color(0xFF1F5DA0))),
       ],
     );
@@ -695,15 +706,15 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   Widget _statTile(IconData icon, String label, String valor, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      padding: EdgeInsets.symmetric(vertical: Responsive.h(2.5), horizontal: Responsive.padding(12)),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Column(
         children: [
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 18)),
-          const SizedBox(height: 8),
-          Text(valor, style: TextStyle(color: color, fontFamily: "Poppins", fontSize: 16, fontWeight: FontWeight.bold)),
+          Container(padding: EdgeInsets.all(Responsive.padding(8)), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: Responsive.imageSize(18))),
+          SizedBox(height: Responsive.h(1.2)),
+          Text(valor, style: TextStyle(color: color, fontFamily: "Poppins", fontSize: Responsive.font(16), fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 11)),
+          Text(label, style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(11))),
         ],
       ),
     );
@@ -712,9 +723,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   Widget _toggleChip(String label, bool activo) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16), vertical: Responsive.padding(8)),
       decoration: BoxDecoration(color: activo ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(10)),
-      child: Text(label, style: TextStyle(color: activo ? const Color(0xFF1F5DA0) : Colors.white70, fontFamily: "Poppins", fontWeight: activo ? FontWeight.bold : FontWeight.normal, fontSize: 13)),
+      child: Text(label, style: TextStyle(color: activo ? const Color(0xFF1F5DA0) : Colors.white70, fontFamily: "Poppins", fontWeight: activo ? FontWeight.bold : FontWeight.normal, fontSize: Responsive.font(13))),
     );
   }
 
@@ -737,51 +748,51 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           borderRadius: BorderRadius.circular(20),
           child: Row(
             children: [
-              Container(width: 5, height: 90, color: color),
+              Container(width: 5, height: Responsive.h(13), color: color),
               Container(
-                width: 56, height: 90, color: bgColor,
+                width: Responsive.w(14), height: Responsive.h(13), color: bgColor,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("${fecha.day}", style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold, fontFamily: "Poppins", height: 1)),
-                    Text(meses[fecha.month - 1], style: TextStyle(color: color.withOpacity(0.7), fontSize: 10, fontFamily: "Poppins", fontWeight: FontWeight.w600)),
+                    Text("${fecha.day}", style: TextStyle(color: color, fontSize: Responsive.font(22), fontWeight: FontWeight.bold, fontFamily: "Poppins", height: 1)),
+                    Text(meses[fecha.month - 1], style: TextStyle(color: color.withOpacity(0.7), fontSize: Responsive.font(10), fontFamily: "Poppins", fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: Responsive.w(3.5)),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: Responsive.h(2)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(partido["resultado"], style: TextStyle(color: color, fontSize: 20, fontFamily: "Poppins", fontWeight: FontWeight.bold, height: 1.1)),
+                          Text(partido["resultado"], style: TextStyle(color: color, fontSize: Responsive.font(20), fontFamily: "Poppins", fontWeight: FontWeight.bold, height: 1.1)),
                           if (vinculado) ...[
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(color: const Color(0xFF1F5DA0).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                              child: const Text("✓ Verificado", style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontSize: 9, fontWeight: FontWeight.bold)),
+                              child: Text("✓ Verificado", style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontSize: Responsive.font(9), fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ],
                       ),
-                      const SizedBox(height: 5),
+                      SizedBox(height: Responsive.h(0.7)),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined, size: 12, color: Colors.grey.shade400),
+                          Icon(Icons.location_on_outlined, size: Responsive.font(12), color: Colors.grey.shade400),
                           const SizedBox(width: 3),
-                          Expanded(child: Text("${partido["club"]}", overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 12))),
+                          Expanded(child: Text("${partido["club"]}", overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: Responsive.font(12)))),
                         ],
                       ),
-                      const SizedBox(height: 3),
+                      SizedBox(height: Responsive.h(0.4)),
                       Row(
                         children: [
-                          Icon(Icons.bar_chart_rounded, size: 12, color: Colors.grey.shade400),
+                          Icon(Icons.bar_chart_rounded, size: Responsive.font(12), color: Colors.grey.shade400),
                           const SizedBox(width: 3),
-                          Text("Nivel ${partido["nivelMedio"]}", style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: 12)),
+                          Text("Nivel ${partido["nivelMedio"]}", style: TextStyle(color: Colors.grey.shade500, fontFamily: "Poppins", fontSize: Responsive.font(12))),
                         ],
                       ),
                     ],
@@ -789,11 +800,11 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 16),
+                padding: EdgeInsets.only(right: Responsive.padding(16)),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.padding(12), vertical: Responsive.padding(6)),
                   decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
-                  child: Text(ganado ? "WIN" : "LOSS", style: TextStyle(color: color, fontWeight: FontWeight.bold, fontFamily: "Poppins", fontSize: 13, letterSpacing: 0.5)),
+                  child: Text(ganado ? "WIN" : "LOSS", style: TextStyle(color: color, fontWeight: FontWeight.bold, fontFamily: "Poppins", fontSize: Responsive.font(13), letterSpacing: 0.5)),
                 ),
               ),
             ],

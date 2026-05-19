@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../service/session.dart';
 import '../service/recuperar_service.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
@@ -115,8 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
+    Responsive.init(context);
+    final w = Responsive.width;
+    final h = Responsive.height;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -124,25 +126,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: SizedBox(
-            height: h - MediaQuery.of(context).padding.top,
-            child: Column(
-              children: [
+          child: Column(
+            children: [
 
-                SizedBox(height: h * 0.05),
+              SizedBox(height: h * 0.05),
 
-                Image.asset("assets/images/logo.png", width: w * 0.38),
+              Image.asset("assets/images/logo.png", width: w * 0.38),
 
-                SizedBox(height: h * 0.03),
+              SizedBox(height: h * 0.03),
 
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: w * 0.07,
-                      vertical: h * 0.04,
-                    ),
-                    decoration: const BoxDecoration(
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: w * 0.07,
+                  vertical: h * 0.04,
+                ),
+                decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(40),
@@ -223,25 +222,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 16),
+                        SizedBox(height: Responsive.h(2.5)),
 
                         TextButton(
                           onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const RecuperarPasswordScreen()),
                           ),
-                          child: const Text(
+                          child: Text(
                             "¿Olvidaste tu contraseña?",
                             style: TextStyle(
                               color: Color(0xFF1F5DA0),
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                              fontSize: Responsive.font(14),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        SizedBox(height: Responsive.h(1.2)),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -274,13 +273,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                  ),
                 ),
               ],
             ),
           ),
         ),
-      ),
     );
   }
 }

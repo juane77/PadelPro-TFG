@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/responsive.dart';
 
 class ReservaDetailScreen extends StatelessWidget {
 
@@ -8,7 +9,7 @@ class ReservaDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    Responsive.init(context);
     DateTime fecha = DateTime.parse(reserva["fechaReserva"]);
 
     return Scaffold(
@@ -17,20 +18,21 @@ class ReservaDetailScreen extends StatelessWidget {
 
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F5DA0),
-        title: const Text("Detalle reserva"),
+        title: Text(
+          "Detalle reserva",
+          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(18)),
+        ),
       ),
 
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(Responsive.padding(20)),
 
         child: Container(
-
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(Responsive.padding(20)),
 
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -41,59 +43,39 @@ class ReservaDetailScreen extends StatelessWidget {
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-
             children: [
-
               Text(
                 reserva["pista"]["nombre"],
-                style: const TextStyle(
-                  fontSize: 24,
+                style: TextStyle(
+                  fontSize: Responsive.font(24),
                   fontWeight: FontWeight.bold,
+                  fontFamily: "Poppins",
                 ),
               ),
-
-              const SizedBox(height: 20),
-
+              SizedBox(height: Responsive.h(3)),
               Row(
                 children: [
-
-                  const Icon(Icons.location_on),
-
+                  const Icon(Icons.location_on, size: 20),
                   const SizedBox(width: 6),
-
-                  Text(reserva["pista"]["club"]["nombre"]),
-
+                  Text(reserva["pista"]["club"]["nombre"], style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(14))),
                 ],
               ),
-
-              const SizedBox(height: 10),
-
+              SizedBox(height: Responsive.h(1.5)),
               Row(
                 children: [
-
-                  const Icon(Icons.calendar_today),
-
+                  const Icon(Icons.calendar_today, size: 20),
                   const SizedBox(width: 6),
-
-                  Text("${fecha.day}/${fecha.month}/${fecha.year}"),
-
+                  Text("${fecha.day}/${fecha.month}/${fecha.year}", style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(14))),
                 ],
               ),
-
-              const SizedBox(height: 10),
-
+              SizedBox(height: Responsive.h(1.5)),
               Row(
                 children: [
-
-                  const Icon(Icons.schedule),
-
+                  const Icon(Icons.schedule, size: 20),
                   const SizedBox(width: 6),
-
-                  Text("${fecha.hour}:00"),
-
+                  Text("${fecha.hour}:00", style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(14))),
                 ],
               ),
-
             ],
           ),
         ),

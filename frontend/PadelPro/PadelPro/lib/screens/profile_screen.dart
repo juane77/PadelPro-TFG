@@ -8,6 +8,7 @@ import '../service/session.dart';
 import '../service/foto_service.dart';
 import '../service/notificacion_service.dart';
 import '../service/amistad_service.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 import '../widgets/app_header.dart';
 import 'home_screen.dart';
@@ -317,6 +318,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -348,29 +350,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: Responsive.h(3)),
 
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "PERFIL",
-                        style: TextStyle(fontSize: 24, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: Responsive.font(24), fontFamily: "Poppins", fontWeight: FontWeight.bold),
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: Responsive.h(4.5)),
 
                     GestureDetector(
                       onTap: pickImage,
                       child: Stack(
                         children: [
                           CircleAvatar(
-                            radius: MediaQuery.of(context).size.width * 0.15,
+                            radius: Responsive.w(15),
                             backgroundImage: Session.fotoUrl != null
                                 ? NetworkImage(Session.fotoUrl!)
                                 : const AssetImage("assets/images/profile.jpg") as ImageProvider,
@@ -379,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             bottom: 0,
                             right: 0,
                             child: Container(
-                              padding: const EdgeInsets.all(6),
+                              padding: EdgeInsets.all(Responsive.padding(6)),
                               decoration: const BoxDecoration(
                                 color: Color(0xFF1F5DA0),
                                 shape: BoxShape.circle,
@@ -391,27 +393,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: Responsive.h(2.2)),
 
                     Text(
                       Session.nombre ?? "",
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFamily: "Poppins"),
+                      style: TextStyle(fontSize: Responsive.font(24), fontWeight: FontWeight.bold, fontFamily: "Poppins"),
                     ),
 
-                    const SizedBox(height: 5),
+                    SizedBox(height: Responsive.h(0.7)),
 
                     Text(
                       Session.email ?? "",
-                      style: const TextStyle(color: Colors.grey, fontSize: 16, fontFamily: "Poppins"),
+                      style: TextStyle(color: Colors.grey, fontSize: Responsive.font(16), fontFamily: "Poppins"),
                     ),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: Responsive.h(2.5)),
 
-                    // SALDO DE PELOTAS — al pulsar abre la ventana flotante
                     GestureDetector(
                       onTap: mostrarInfoPelotas,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(12)),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFF1F5DA0), Color(0xFF2E7BC4)],
@@ -421,38 +422,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text("🎾", style: TextStyle(fontSize: 22)),
-                            const SizedBox(width: 10),
+                            Text("🎾", style: TextStyle(fontSize: Responsive.font(22))),
+                            SizedBox(width: Responsive.w(2.5)),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "${Session.pelotas} pelotas",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontFamily: "Poppins",
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                    fontSize: Responsive.font(18),
                                   ),
                                 ),
-                                const Text(
+                                Text(
                                   "Tu saldo actual — pulsa para saber más",
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontFamily: "Poppins",
-                                    fontSize: 11,
+                                    fontSize: Responsive.font(11),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: Responsive.w(2.5)),
                             const Icon(Icons.info_outline, color: Colors.white70, size: 18),
                           ],
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: Responsive.h(4.5)),
 
                     profileButton(
                       icon: Icons.person_outline,
@@ -461,15 +462,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: editarNombre,
                     ),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: Responsive.h(2.2)),
 
                     amigosButton(),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: Responsive.h(2.2)),
 
                     notificacionButton(),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: Responsive.h(2.2)),
 
                     profileButton(
                       icon: Icons.settings,
@@ -481,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 15),
+                    SizedBox(height: Responsive.h(2.2)),
 
                     profileButton(
                       icon: Icons.logout,
@@ -490,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: logout,
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: Responsive.h(4.5)),
                   ],
                 ),
               ),
@@ -535,14 +536,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
             ],
           ),
-          title: const Text("Amigos", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+          title: Text("Amigos", style: TextStyle(color: Colors.white, fontSize: Responsive.font(16), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
           trailing: solicitudesPendientes > 0
               ? Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
                   child: Text(
                     "$solicitudesPendientes nueva${solicitudesPendientes > 1 ? 's' : ''}",
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontSize: Responsive.font(12), fontWeight: FontWeight.bold),
                   ),
                 )
               : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
@@ -580,14 +581,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
             ],
           ),
-          title: const Text("Notificaciones", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+          title: Text("Notificaciones", style: TextStyle(color: Colors.white, fontSize: Responsive.font(16), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
           trailing: noLeidas > 0
               ? Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
                   child: Text(
                     "$noLeidas nueva${noLeidas > 1 ? 's' : ''}",
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Colors.white, fontSize: Responsive.font(12), fontWeight: FontWeight.bold),
                   ),
                 )
               : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
@@ -603,7 +604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         leading: Icon(icon, color: Colors.white),
-        title: Text(text, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+        title: Text(text, style: TextStyle(color: Colors.white, fontSize: Responsive.font(16), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
         onTap: onTap ?? () {},
       ),

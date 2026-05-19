@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/pista.dart';
 import '../service/valoracion_service.dart';
+import '../utils/responsive.dart';
 import 'reservation_calendar_screen.dart';
 
 class PistaDetailScreen extends StatefulWidget {
@@ -135,6 +136,7 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       extendBodyBehindAppBar: true,
@@ -144,7 +146,7 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
-            margin: const EdgeInsets.all(8),
+            margin: EdgeInsets.all(Responsive.padding(8)),
             decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), shape: BoxShape.circle),
             child: const Icon(Icons.arrow_back, color: Color(0xFF1F5DA0)),
           ),
@@ -154,9 +156,9 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
         children: [
           Stack(
             children: [
-              Image.asset(imagenPista, height: 260, width: double.infinity, fit: BoxFit.cover),
+              Image.asset(imagenPista, height: Responsive.imageSize(260), width: double.infinity, fit: BoxFit.cover),
               Container(
-                height: 260,
+                height: Responsive.imageSize(260),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -166,7 +168,7 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                 ),
               ),
               Positioned(
-                bottom: 20, left: 20, right: 20,
+                bottom: Responsive.padding(20), left: Responsive.padding(20), right: Responsive.padding(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -176,15 +178,15 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                         color: widget.pista.tipo.toLowerCase().contains("cubierta") ? const Color(0xFF1F5DA0) : Colors.green,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(widget.pista.tipo.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                      child: Text(widget.pista.tipo.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: Responsive.font(11), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                     ),
-                    const SizedBox(height: 6),
-                    Text(widget.pista.nombre, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                    SizedBox(height: Responsive.h(0.9)),
+                    Text(widget.pista.nombre, style: TextStyle(color: Colors.white, fontSize: Responsive.font(28), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                     Row(
                       children: [
                         const Icon(Icons.location_on, color: Colors.white70, size: 16),
                         const SizedBox(width: 4),
-                        Text("${widget.pista.clubNombre} · ${widget.pista.ciudad}", style: const TextStyle(color: Colors.white70, fontSize: 14, fontFamily: "Poppins")),
+                        Text("${widget.pista.clubNombre} · ${widget.pista.ciudad}", style: TextStyle(color: Colors.white70, fontSize: Responsive.font(14), fontFamily: "Poppins")),
                       ],
                     ),
                   ],
@@ -202,25 +204,24 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                   Container(
                     width: double.infinity,
                     color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(16)),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("Precio por hora", style: TextStyle(color: Colors.grey, fontSize: 13, fontFamily: "Poppins")),
-                            Text("${widget.pista.precioHora}€", style: const TextStyle(color: Color(0xFF1F5DA0), fontSize: 32, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                            Text("Precio por hora", style: TextStyle(color: Colors.grey, fontSize: Responsive.font(13), fontFamily: "Poppins")),
+                            Text("${widget.pista.precioHora}€", style: TextStyle(color: Color(0xFF1F5DA0), fontSize: Responsive.font(32), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                           ],
                         ),
 
-                        // VALORACIÓN DINÁMICA
                         cargandoValoracion
-                            ? const SizedBox(width: 80, child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF1F5DA0))))
+                            ? SizedBox(width: Responsive.w(20), child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF1F5DA0))))
                             : GestureDetector(
                                 onTap: () => _mostrarDialogoValorar(context),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: EdgeInsets.symmetric(horizontal: Responsive.padding(14), vertical: Responsive.padding(8)),
                                   decoration: BoxDecoration(color: Colors.amber.withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
                                   child: Column(
                                     children: [
@@ -228,13 +229,13 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                                         children: [
                                           const Icon(Icons.star_rounded, color: Colors.amber, size: 22),
                                           const SizedBox(width: 4),
-                                          Text(mediaValoracion.toStringAsFixed(1), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                                          Text(mediaValoracion.toStringAsFixed(1), style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
                                         ],
                                       ),
                                       if (totalValoraciones > 0)
-                                        Text("$totalValoraciones reseña${totalValoraciones != 1 ? 's' : ''}", style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 10))
+                                        Text("$totalValoraciones reseña${totalValoraciones != 1 ? 's' : ''}", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(10)))
                                       else
-                                        const Text("Valórala", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 10)),
+                                        Text("Valórala", style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(10))),
                                     ],
                                   ),
                                 ),
@@ -243,29 +244,29 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.h(1.2)),
 
                   // CARACTERÍSTICAS
                   Container(
                     color: Colors.white,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(Responsive.padding(20)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Características", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
-                        const SizedBox(height: 16),
+                        Text("Características", style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                        SizedBox(height: Responsive.h(2.5)),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: caracteristicas.map((c) {
                             return Column(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(12),
+                                  padding: EdgeInsets.all(Responsive.padding(12)),
                                   decoration: BoxDecoration(color: const Color(0xFF1F5DA0).withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
-                                  child: Icon(c["icono"] as IconData, color: const Color(0xFF1F5DA0), size: 26),
+                                  child: Icon(c["icono"] as IconData, color: const Color(0xFF1F5DA0), size: Responsive.imageSize(26)),
                                 ),
-                                const SizedBox(height: 6),
-                                Text(c["texto"] as String, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontFamily: "Poppins", color: Colors.grey)),
+                                SizedBox(height: Responsive.h(0.9)),
+                                Text(c["texto"] as String, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: Responsive.font(11), fontFamily: "Poppins", color: Colors.grey)),
                               ],
                             );
                           }).toList(),
@@ -274,40 +275,40 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(height: Responsive.h(1.2)),
 
                   // DESCRIPCIÓN
                   Container(
                     width: double.infinity,
                     color: Colors.white,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(Responsive.padding(20)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Descripción", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
-                        const SizedBox(height: 10),
-                        Text(descripcion, style: const TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.grey, height: 1.6)),
+                        Text("Descripción", style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                        SizedBox(height: Responsive.h(1.5)),
+                        Text(descripcion, style: TextStyle(fontSize: Responsive.font(14), fontFamily: "Poppins", color: Colors.grey, height: 1.6)),
                       ],
                     ),
                   ),
 
                   // MI VALORACIÓN
                   if (miValoracion > 0) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: Responsive.h(1.2)),
                     Container(
                       width: double.infinity,
                       color: Colors.white,
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(Responsive.padding(20)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("Tu valoración", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
-                          const SizedBox(height: 12),
+                          Text("Tu valoración", style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                          SizedBox(height: Responsive.h(1.8)),
                           Row(
                             children: List.generate(5, (i) => Icon(
                               i < miValoracion ? Icons.star_rounded : Icons.star_border_rounded,
                               color: i < miValoracion ? Colors.amber : Colors.grey.shade300,
-                              size: 30,
+                              size: Responsive.imageSize(30),
                             )),
                           ),
                         ],
@@ -315,7 +316,7 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
                     ),
                   ],
 
-                  const SizedBox(height: 100),
+                  SizedBox(height: Responsive.h(15)),
                 ],
               ),
             ),
@@ -323,14 +324,14 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(16)),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, -4))],
         ),
         child: SizedBox(
           width: double.infinity,
-          height: 54,
+          height: Responsive.h(8),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1F5DA0),
@@ -339,12 +340,12 @@ class _PistaDetailScreenState extends State<PistaDetailScreen> {
               elevation: 0,
             ),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ReservationCalendarScreen(pista: widget.pista))),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.calendar_today, size: 20),
-                SizedBox(width: 10),
-                Text("Reservar pista", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: "Poppins")),
+                const Icon(Icons.calendar_today, size: 20),
+                const SizedBox(width: 10),
+                Text("Reservar pista", style: TextStyle(fontSize: Responsive.font(18), fontWeight: FontWeight.bold, fontFamily: "Poppins")),
               ],
             ),
           ),

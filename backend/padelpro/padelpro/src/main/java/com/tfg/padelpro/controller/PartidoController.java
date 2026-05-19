@@ -56,6 +56,10 @@ public class PartidoController {
 
         Reserva reserva = null;
         if (dto.reservaId() != null) {
+            if (partidoRepository.existsByReservaId(dto.reservaId())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("mensaje", "Esta reserva ya tiene un partido registrado"));
+            }
             reserva = reservaRepository.findById(dto.reservaId()).orElse(null);
         }
 
@@ -124,6 +128,7 @@ public class PartidoController {
         map.put("pistaId", p.getPista().getId());
         map.put("club", p.getPista().getClub().getNombre());
         map.put("reservaVinculada", p.getReserva() != null);
+        map.put("reservaId", p.getReserva() != null ? p.getReserva().getId() : null);
         map.put("amigosIds", p.getAmigosIds() != null ? p.getAmigosIds() : "");
         map.put("esInvitado", esInvitado);
         map.put("nombreCreador", nombreCreador != null ? nombreCreador : "");

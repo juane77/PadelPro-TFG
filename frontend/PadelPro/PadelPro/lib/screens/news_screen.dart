@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../service/session.dart';
+import '../utils/responsive.dart';
 import '../widgets/app_header.dart';
 import 'home_screen.dart';
 import 'matches_screen.dart';
@@ -90,7 +91,7 @@ class _NewsScreenState extends State<NewsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+    Responsive.init(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -129,7 +130,7 @@ class _NewsScreenState extends State<NewsScreen> {
                       ? _estadoError()
                       : noticias.isEmpty
                           ? _estadoVacio()
-                          : _listaNoticias(w),
+                          : _listaNoticias(),
             ),
           ],
         ),
@@ -137,12 +138,12 @@ class _NewsScreenState extends State<NewsScreen> {
     );
   }
 
-  Widget _listaNoticias(double w) {
+  Widget _listaNoticias() {
     return RefreshIndicator(
       color: const Color(0xFF1F5DA0),
       onRefresh: cargarNoticias,
       child: ListView.builder(
-        padding: EdgeInsets.all(w * 0.04),
+        padding: EdgeInsets.all(Responsive.padding(16)),
         itemCount: noticias.length,
         itemBuilder: (context, index) {
           final noticia = noticias[index];
@@ -163,7 +164,7 @@ class _NewsScreenState extends State<NewsScreen> {
     return GestureDetector(
       onTap: () => abrirNoticia(url),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: Responsive.h(2.5)),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -180,17 +181,17 @@ class _NewsScreenState extends State<NewsScreen> {
             children: [
               Image.network(
                 imagen,
-                height: 220,
+                height: Responsive.imageSize(220),
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  height: 220,
+                  height: Responsive.imageSize(220),
                   color: const Color(0xFF1F5DA0).withOpacity(0.2),
                   child: const Icon(Icons.sports_tennis, size: 60, color: Colors.white54),
                 ),
               ),
               Container(
-                height: 220,
+                height: Responsive.imageSize(220),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -204,7 +205,7 @@ class _NewsScreenState extends State<NewsScreen> {
                 left: 0,
                 right: 0,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Responsive.padding(16)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -214,32 +215,32 @@ class _NewsScreenState extends State<NewsScreen> {
                           color: const Color(0xFF1F5DA0),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
+                        child: Text(
                           "DESTACADO",
-                          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: "Poppins"),
+                          style: TextStyle(color: Colors.white, fontSize: Responsive.font(10), fontWeight: FontWeight.bold, fontFamily: "Poppins"),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: Responsive.h(1.2)),
                       Text(
                         titulo,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: "Poppins"),
+                        style: TextStyle(color: Colors.white, fontSize: Responsive.font(16), fontWeight: FontWeight.bold, fontFamily: "Poppins"),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: Responsive.h(0.9)),
                       Row(
                         children: [
                           const Icon(Icons.access_time, color: Colors.white70, size: 12),
                           const SizedBox(width: 4),
                           Text(_tiempoTranscurrido(fecha),
-                              style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: "Poppins")),
-                          const SizedBox(width: 12),
+                              style: TextStyle(color: Colors.white70, fontSize: Responsive.font(11), fontFamily: "Poppins")),
+                          SizedBox(width: Responsive.w(3)),
                           const Icon(Icons.source_outlined, color: Colors.white70, size: 12),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(fuente,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: "Poppins")),
+                                style: TextStyle(color: Colors.white70, fontSize: Responsive.font(11), fontFamily: "Poppins")),
                           ),
                         ],
                       ),
@@ -264,8 +265,8 @@ class _NewsScreenState extends State<NewsScreen> {
     return GestureDetector(
       onTap: () => abrirNoticia(url),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        margin: EdgeInsets.only(bottom: Responsive.h(1.8)),
+        padding: EdgeInsets.all(Responsive.padding(12)),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -283,40 +284,40 @@ class _NewsScreenState extends State<NewsScreen> {
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 imagen,
-                width: 85,
-                height: 85,
+                width: Responsive.imageSize(85),
+                height: Responsive.imageSize(85),
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  width: 85,
-                  height: 85,
+                  width: Responsive.imageSize(85),
+                  height: Responsive.imageSize(85),
                   color: const Color(0xFF1F5DA0).withOpacity(0.1),
                   child: const Icon(Icons.sports_tennis, color: Color(0xFF1F5DA0)),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: Responsive.w(3)),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     fuente,
-                    style: const TextStyle(color: Color(0xFF1F5DA0), fontSize: 11, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                    style: TextStyle(color: Color(0xFF1F5DA0), fontSize: Responsive.font(11), fontFamily: "Poppins", fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: Responsive.h(0.6)),
                   Text(
                     titulo,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(13)),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: Responsive.h(0.9)),
                   Row(
                     children: [
                       const Icon(Icons.access_time, color: Colors.grey, size: 11),
                       const SizedBox(width: 3),
                       Text(_tiempoTranscurrido(fecha),
-                          style: const TextStyle(color: Colors.grey, fontSize: 11, fontFamily: "Poppins")),
+                          style: TextStyle(color: Colors.grey, fontSize: Responsive.font(11), fontFamily: "Poppins")),
                     ],
                   ),
                 ],

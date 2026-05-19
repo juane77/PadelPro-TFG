@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/notificacion_service.dart';
 import '../service/session.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 
 class NotificacionesScreen extends StatefulWidget {
@@ -104,15 +105,16 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
-        title: const Text(
+        title: Text(
           "Notificaciones",
-          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(18)),
         ),
         actions: [
           TextButton(
@@ -120,9 +122,9 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
               await NotificacionApi.marcarTodasLeidas(Session.usuarioId!);
               recargar();
             },
-            child: const Text(
+            child: Text(
               "Leer todas",
-              style: TextStyle(color: Colors.white70, fontFamily: "Poppins"),
+              style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(13)),
             ),
           ),
           IconButton(
@@ -140,17 +142,17 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.notifications_none, size: 64, color: Colors.grey.shade300),
-                      const SizedBox(height: 16),
-                      const Text(
+                      Icon(Icons.notifications_none, size: Responsive.imageSize(64), color: Colors.grey.shade300),
+                      SizedBox(height: Responsive.h(2.5)),
+                      Text(
                         "No tienes notificaciones",
-                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 15),
+                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(15)),
                       ),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Responsive.padding(16)),
                   itemCount: noticias.length,
                   itemBuilder: (context, index) {
                     final n = noticias[index];
@@ -169,13 +171,13 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                 direction: DismissDirection.endToStart,
                 onDismissed: (_) => borrarUna(n["id"]),
                 background: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(bottom: Responsive.h(1.8)),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
+                  padding: EdgeInsets.only(right: Responsive.padding(20)),
                   child: const Icon(Icons.delete_rounded, color: Colors.white, size: 26),
                 ),
                 child: GestureDetector(
@@ -186,7 +188,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                     }
                   },
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: EdgeInsets.only(bottom: Responsive.h(1.8)),
                     decoration: BoxDecoration(
                       color: leida ? Colors.white : color.withOpacity(0.06),
                       borderRadius: BorderRadius.circular(16),
@@ -203,21 +205,21 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(Responsive.padding(16)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: EdgeInsets.all(Responsive.padding(10)),
                             decoration: BoxDecoration(
                               color: color.withOpacity(0.12),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(icono, color: color, size: 24),
+                            child: Icon(icono, color: color, size: Responsive.imageSize(24)),
                           ),
 
-                          const SizedBox(width: 14),
+                          SizedBox(width: Responsive.w(3.5)),
 
                           Expanded(
                             child: Column(
@@ -233,9 +235,9 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                                       ),
                                       child: Text(
                                         etiqueta,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 10,
+                                          fontSize: Responsive.font(10),
                                           fontWeight: FontWeight.bold,
                                           fontFamily: "Poppins",
                                         ),
@@ -251,30 +253,29 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                                           shape: BoxShape.circle,
                                         ),
                                       ),
-                                    const SizedBox(width: 8),
-                                    // PAPELERA INDIVIDUAL
+                                    SizedBox(width: Responsive.w(2)),
                                     GestureDetector(
                                       onTap: () => borrarUna(n["id"]),
                                       child: Icon(Icons.delete_outline_rounded,
-                                          color: Colors.grey.shade400, size: 20),
+                                          color: Colors.grey.shade400, size: Responsive.imageSize(20)),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: Responsive.h(1.2)),
                                 Text(
                                   n["mensaje"],
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Responsive.font(14),
                                     fontFamily: "Poppins",
                                     fontWeight: leida ? FontWeight.normal : FontWeight.bold,
                                     color: leida ? Colors.grey[700] : Colors.black87,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: Responsive.h(0.9)),
                                 Text(
                                   fechaStr,
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: TextStyle(
+                                    fontSize: Responsive.font(12),
                                     color: Colors.grey,
                                     fontFamily: "Poppins",
                                   ),

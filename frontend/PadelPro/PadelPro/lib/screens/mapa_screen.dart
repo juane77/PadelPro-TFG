@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/pista.dart';
 import '../service/api_service.dart';
+import '../utils/responsive.dart';
 import 'pista_detail_screen.dart';
 
 class MapaScreen extends StatefulWidget {
@@ -206,6 +207,7 @@ class _MapaScreenState extends State<MapaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
@@ -213,9 +215,9 @@ class _MapaScreenState extends State<MapaScreen> {
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Pistas cercanas",
-          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(20)),
         ),
         actions: [
           IconButton(
@@ -239,7 +241,7 @@ class _MapaScreenState extends State<MapaScreen> {
                   children: [
 
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.45,
+                      height: Responsive.h(45),
                       child: FlutterMap(
                         mapController: mapController,
                         options: MapOptions(
@@ -326,23 +328,23 @@ class _MapaScreenState extends State<MapaScreen> {
                     ),
 
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      padding: EdgeInsets.fromLTRB(Responsive.padding(16), Responsive.h(2.5), Responsive.padding(16), Responsive.h(1.2)),
                       child: Row(
                         children: [
-                          const Text(
+                          Text(
                             "Más cercanas",
-                            style: TextStyle(fontSize: 18, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: Responsive.font(18), fontFamily: "Poppins", fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: Responsive.w(2)),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: EdgeInsets.symmetric(horizontal: Responsive.padding(8), vertical: 2),
                             decoration: BoxDecoration(
                               color: const Color(0xFF1F5DA0).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               "${pistasOrdenadas.length} pistas",
-                              style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontSize: 12, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontSize: Responsive.font(12), fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -351,7 +353,7 @@ class _MapaScreenState extends State<MapaScreen> {
 
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16)),
                         itemCount: pistasOrdenadas.length,
                         itemBuilder: (context, index) {
                           final pista = pistasOrdenadas[index];
@@ -365,8 +367,8 @@ class _MapaScreenState extends State<MapaScreen> {
                               Navigator.push(context, MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista)));
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(12),
+                              margin: EdgeInsets.only(bottom: Responsive.h(1.5)),
+                              padding: EdgeInsets.all(Responsive.padding(12)),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(14),
@@ -375,7 +377,7 @@ class _MapaScreenState extends State<MapaScreen> {
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 36, height: 36,
+                                    width: Responsive.imageSize(36), height: Responsive.imageSize(36),
                                     decoration: BoxDecoration(
                                       color: index < 3 ? const Color(0xFF1F5DA0) : const Color(0xFF1F5DA0).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(10),
@@ -385,21 +387,21 @@ class _MapaScreenState extends State<MapaScreen> {
                                         "${index + 1}",
                                         style: TextStyle(
                                           color: index < 3 ? Colors.white : const Color(0xFF1F5DA0),
-                                          fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 14,
+                                          fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(14),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: Responsive.w(3)),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(pista.nombre, style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 14)),
-                                        const SizedBox(height: 2),
+                                        Text(pista.nombre, style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(14))),
+                                        SizedBox(height: Responsive.h(0.3)),
                                         Text(
                                           pista.clubNombre,
-                                          style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 12),
+                                          style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(12)),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
@@ -409,15 +411,15 @@ class _MapaScreenState extends State<MapaScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(8), vertical: 3),
                                         decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                                        child: Text(distancia, style: const TextStyle(color: Colors.green, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                                        child: Text(distancia, style: TextStyle(color: Colors.green, fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(12))),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text("${pista.precioHora}€/h", style: const TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: 12)),
+                                      SizedBox(height: Responsive.h(0.6)),
+                                      Text("${pista.precioHora}€/h", style: TextStyle(color: Color(0xFF1F5DA0), fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(12))),
                                     ],
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: Responsive.w(1.5)),
                                   const Icon(Icons.arrow_forward_ios_rounded, size: 13, color: Colors.grey),
                                 ],
                               ),
@@ -434,21 +436,21 @@ class _MapaScreenState extends State<MapaScreen> {
   Widget _errorUbicacion() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(30),
+        padding: EdgeInsets.all(Responsive.padding(30)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.location_off_rounded, size: 64, color: Colors.grey.shade300),
-            const SizedBox(height: 16),
-            const Text("No se pudo obtener tu ubicación", textAlign: TextAlign.center, style: TextStyle(fontFamily: "Poppins", fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 8),
-            const Text("Activa el GPS y los permisos de ubicación para ver las pistas más cercanas", textAlign: TextAlign.center, style: TextStyle(fontFamily: "Poppins", fontSize: 13, color: Colors.grey)),
-            const SizedBox(height: 24),
+            Icon(Icons.location_off_rounded, size: Responsive.imageSize(64), color: Colors.grey.shade300),
+            SizedBox(height: Responsive.h(2.5)),
+            Text("No se pudo obtener tu ubicación", textAlign: TextAlign.center, style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(16), color: Colors.grey)),
+            SizedBox(height: Responsive.h(1.2)),
+            Text("Activa el GPS y los permisos de ubicación para ver las pistas más cercanas", textAlign: TextAlign.center, style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(13), color: Colors.grey)),
+            SizedBox(height: Responsive.h(3.5)),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1F5DA0), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               onPressed: inicializar,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text("Reintentar", style: TextStyle(fontFamily: "Poppins")),
+              label: Text("Reintentar", style: TextStyle(fontFamily: "Poppins", fontSize: Responsive.font(13))),
             ),
           ],
         ),

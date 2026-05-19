@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/api_service.dart';
 import '../models/pista.dart';
+import '../utils/responsive.dart';
 import 'pista_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -59,6 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -66,17 +68,17 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
-        title: const Text(
+        title: Text(
           "Buscar pistas",
-          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(18)),
         ),
         actions: [
           if (buscado)
             TextButton(
               onPressed: limpiar,
-              child: const Text(
+              child: Text(
                 "Limpiar",
-                style: TextStyle(color: Colors.white70, fontFamily: "Poppins"),
+                style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(13)),
               ),
             ),
         ],
@@ -88,22 +90,22 @@ class _SearchScreenState extends State<SearchScreen> {
           // FILTROS
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(Responsive.padding(20)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                const Text(
+                Text(
                   "Filtros de búsqueda",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: Responsive.font(16),
                     fontWeight: FontWeight.bold,
                     fontFamily: "Poppins",
                     color: Color(0xFF1F5DA0),
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.h(2.5)),
 
                 // CIUDAD
                 TextField(
@@ -122,19 +124,19 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                SizedBox(height: Responsive.h(2)),
 
                 // TIPO — SELECTOR CON CHIPS
-                const Text(
+                Text(
                   "Tipo de pista",
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: Responsive.font(13),
                     color: Colors.grey,
                     fontFamily: "Poppins",
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: Responsive.h(1.2)),
 
                 Row(
                   children: [
@@ -169,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 14),
+                SizedBox(height: Responsive.h(2)),
 
                 // PRECIO MÁXIMO
                 TextField(
@@ -190,12 +192,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.h(2.5)),
 
                 // BOTÓN BUSCAR
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: Responsive.h(7),
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1F5DA0),
@@ -207,10 +209,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     onPressed: buscar,
                     icon: const Icon(Icons.search),
-                    label: const Text(
+                    label: Text(
                       "Buscar pistas",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: Responsive.font(16),
                         fontWeight: FontWeight.bold,
                         fontFamily: "Poppins",
                       ),
@@ -221,7 +223,7 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: Responsive.h(1.2)),
 
           // RESULTADOS
           Expanded(
@@ -248,7 +250,7 @@ class _SearchScreenState extends State<SearchScreen> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: Responsive.padding(14), vertical: Responsive.padding(8)),
         decoration: BoxDecoration(
           color: seleccionado
               ? const Color(0xFF1F5DA0)
@@ -264,7 +266,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Icon(
               icono,
-              size: 16,
+              size: Responsive.font(16),
               color: seleccionado ? Colors.white : const Color(0xFF1F5DA0),
             ),
             const SizedBox(width: 6),
@@ -274,7 +276,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: seleccionado ? Colors.white : const Color(0xFF1F5DA0),
                 fontWeight: FontWeight.bold,
                 fontFamily: "Poppins",
-                fontSize: 13,
+                fontSize: Responsive.font(13),
               ),
             ),
           ],
@@ -288,14 +290,14 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search, size: 70, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          const Text(
+          Icon(Icons.search, size: Responsive.imageSize(70), color: Colors.grey.shade300),
+          SizedBox(height: Responsive.h(2.5)),
+          Text(
             "Usa los filtros para\nencontrar tu pista ideal",
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey,
-              fontSize: 16,
+              fontSize: Responsive.font(16),
               fontFamily: "Poppins",
             ),
           ),
@@ -309,14 +311,14 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.sports_tennis, size: 70, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          const Text(
+          Icon(Icons.sports_tennis, size: Responsive.imageSize(70), color: Colors.grey.shade300),
+          SizedBox(height: Responsive.h(2.5)),
+          Text(
             "No hay pistas disponibles\ncon estos filtros",
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.grey,
-              fontSize: 16,
+              fontSize: Responsive.font(16),
               fontFamily: "Poppins",
             ),
           ),
@@ -331,40 +333,39 @@ class _SearchScreenState extends State<SearchScreen> {
       children: [
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20), vertical: Responsive.padding(10)),
           child: Text(
             "${resultados.length} pista${resultados.length != 1 ? 's' : ''} encontrada${resultados.length != 1 ? 's' : ''}",
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.grey,
               fontFamily: "Poppins",
-              fontSize: 13,
+              fontSize: Responsive.font(13),
             ),
           ),
         ),
 
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16)),
             itemCount: resultados.take(_limite).length + (resultados.length > _limite ? 1 : 0),
             itemBuilder: (context, index) {
               final visibles = resultados.take(_limite).toList();
 
-              // BOTÓN MOSTRAR MÁS
               if (index == visibles.length) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.symmetric(vertical: Responsive.h(1.2)),
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1F5DA0),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: Responsive.padding(14)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     onPressed: () => setState(() => _limite += 20),
                     icon: const Icon(Icons.expand_more_rounded),
                     label: Text(
                       "Mostrar más (${resultados.length - _limite} restantes)",
-                      style: const TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold, fontSize: Responsive.font(13)),
                     ),
                   ),
                 );
@@ -381,7 +382,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   );
                 },
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(bottom: Responsive.h(1.8)),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -405,13 +406,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           pista.tipo.toLowerCase().contains("cubierta")
                               ? "assets/images/pista_cubierta.png"
                               : "assets/images/pista_descubierta.png",
-                          width: 95,
-                          height: 85,
+                          width: Responsive.imageSize(95),
+                          height: Responsive.imageSize(85),
                           fit: BoxFit.cover,
                         ),
                       ),
 
-                      const SizedBox(width: 14),
+                      SizedBox(width: Responsive.w(3.5)),
 
                       Expanded(
                         child: Column(
@@ -420,14 +421,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
                             Text(
                               pista.nombre,
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: Responsive.font(16),
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins",
                               ),
                             ),
 
-                            const SizedBox(height: 4),
+                            SizedBox(height: Responsive.h(0.6)),
 
                             Row(
                               children: [
@@ -435,16 +436,16 @@ class _SearchScreenState extends State<SearchScreen> {
                                 const SizedBox(width: 3),
                                 Text(
                                   pista.ciudad,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.grey,
-                                    fontSize: 12,
+                                    fontSize: Responsive.font(12),
                                     fontFamily: "Poppins",
                                   ),
                                 ),
                               ],
                             ),
 
-                            const SizedBox(height: 6),
+                            SizedBox(height: Responsive.h(0.9)),
 
                             Row(
                               children: [
@@ -460,7 +461,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   child: Text(
                                     pista.tipo,
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: Responsive.font(11),
                                       fontFamily: "Poppins",
                                       fontWeight: FontWeight.bold,
                                       color: pista.tipo.toLowerCase().contains("cubierta")
@@ -474,11 +475,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
                                 Text(
                                   "${pista.precioHora}€/h",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Color(0xFF1F5DA0),
                                     fontWeight: FontWeight.bold,
                                     fontFamily: "Poppins",
-                                    fontSize: 14,
+                                    fontSize: Responsive.font(14),
                                   ),
                                 ),
 

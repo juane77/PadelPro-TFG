@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../utils/responsive.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    Responsive.init(context);
 
     return Scaffold(
       body: Stack(
@@ -41,8 +42,8 @@ class _SplashScreenState extends State<SplashScreen> {
           Image.asset(
             "assets/images/splash.png",
             fit: BoxFit.cover,
-            width: size.width,
-            height: size.height,
+            width: Responsive.width,
+            height: Responsive.height,
           ),
         ],
       ),

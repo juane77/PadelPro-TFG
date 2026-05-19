@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../service/app_settings.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 
 class AjustesScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+    Responsive.init(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -24,25 +25,25 @@ class _AjustesScreenState extends State<AjustesScreen> {
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Ajustes",
           style: TextStyle(
             fontFamily: "Poppins",
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: Responsive.font(20),
           ),
         ),
       ),
 
       body: ListView(
-        padding: EdgeInsets.all(w * 0.05),
+        padding: EdgeInsets.all(Responsive.padding(20)),
         children: [
 
-          const SizedBox(height: 8),
+          SizedBox(height: Responsive.h(1.2)),
 
           _seccionTitulo("Texto"),
 
-          const SizedBox(height: 10),
+          SizedBox(height: Responsive.h(1.5)),
 
           _ajusteCard(
             icono: Icons.text_fields_rounded,
@@ -50,25 +51,24 @@ class _AjustesScreenState extends State<AjustesScreen> {
             subtitulo: "Actual: ${settings.tamanoTextoLabel}",
             trailing: null,
             child: Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: Responsive.h(1.8)),
               child: Row(
                 children: [
                   _tamanoChip("Pequeño", 0.85),
-                  const SizedBox(width: 8),
+                  SizedBox(width: Responsive.w(2)),
                   _tamanoChip("Normal", 1.0),
-                  const SizedBox(width: 8),
+                  SizedBox(width: Responsive.w(2)),
                   _tamanoChip("Grande", 1.15),
                 ],
               ),
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: Responsive.h(3.5)),
 
-          // SECCIÓN NOTIFICACIONES
           _seccionTitulo("Notificaciones"),
 
-          const SizedBox(height: 10),
+          SizedBox(height: Responsive.h(1.5)),
 
           _ajusteCard(
             icono: Icons.notifications_rounded,
@@ -90,12 +90,11 @@ class _AjustesScreenState extends State<AjustesScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: Responsive.h(3.5)),
 
-          // SECCIÓN SOBRE LA APP
           _seccionTitulo("Sobre la app"),
 
-          const SizedBox(height: 10),
+          SizedBox(height: Responsive.h(1.5)),
 
           _ajusteCard(
             icono: Icons.info_outline_rounded,
@@ -104,7 +103,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
             trailing: const SizedBox(),
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: Responsive.h(1.8)),
 
           _ajusteCard(
             icono: Icons.school_rounded,
@@ -113,7 +112,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
             trailing: const SizedBox(),
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: Responsive.h(4.5)),
         ],
       ),
     );
@@ -133,11 +132,11 @@ class _AjustesScreenState extends State<AjustesScreen> {
         const SizedBox(width: 8),
         Text(
           titulo,
-          style: const TextStyle(
-            fontSize: 16,
+          style: TextStyle(
+            fontSize: Responsive.font(16),
             fontWeight: FontWeight.bold,
             fontFamily: "Poppins",
-            color: Color(0xFF1F5DA0),
+            color: const Color(0xFF1F5DA0),
           ),
         ),
       ],
@@ -152,7 +151,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
     Widget? child,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(Responsive.padding(16)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -170,32 +169,32 @@ class _AjustesScreenState extends State<AjustesScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(Responsive.padding(10)),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F5DA0).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icono, color: const Color(0xFF1F5DA0), size: 22),
+                child: Icon(icono, color: const Color(0xFF1F5DA0), size: Responsive.imageSize(22)),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: Responsive.w(3.5)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       titulo,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: Responsive.font(15),
                       ),
                     ),
                     Text(
                       subtitulo,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: "Poppins",
                         color: Colors.grey,
-                        fontSize: 12,
+                        fontSize: Responsive.font(12),
                       ),
                     ),
                   ],
@@ -220,7 +219,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: Responsive.padding(10)),
           decoration: BoxDecoration(
             color: seleccionado
                 ? const Color(0xFF1F5DA0)
@@ -239,7 +238,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
                 color: seleccionado ? Colors.white : const Color(0xFF1F5DA0),
                 fontFamily: "Poppins",
                 fontWeight: seleccionado ? FontWeight.bold : FontWeight.normal,
-                fontSize: 13,
+                fontSize: Responsive.font(13),
               ),
             ),
           ),

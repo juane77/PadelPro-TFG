@@ -7,6 +7,7 @@ import '../service/api_service.dart';
 import '../models/pista.dart';
 import '../service/session.dart';
 import '../widgets/app_header.dart';
+import '../utils/responsive.dart';
 import 'pista_detail_screen.dart';
 import 'search_screen.dart';
 import 'matches_screen.dart';
@@ -79,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
@@ -112,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.06,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.padding(16)),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(14),
@@ -138,20 +140,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: Responsive.padding(20)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    const SizedBox(height: 24),
+                    SizedBox(height: Responsive.h(3.5)),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Próxima reserva",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: Responsive.font(20),
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,
                           ),
@@ -163,32 +165,32 @@ class _HomeScreenState extends State<HomeScreen> {
                               MaterialPageRoute(builder: (_) => const MisReservasScreen()),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             "Ver todas",
                             style: TextStyle(
                               color: Color(0xFF1F5DA0),
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: Responsive.font(13),
                             ),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 12),
+                    SizedBox(height: Responsive.h(1.8)),
 
                     _proximaReserva(),
 
-                    const SizedBox(height: 28),
+                    SizedBox(height: Responsive.h(4)),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           "Pistas recomendadas",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: Responsive.font(20),
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.bold,
                           ),
@@ -198,21 +200,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(builder: (_) => const MapaScreen()),
                           ),
-                          icon: const Icon(Icons.map_rounded, size: 16, color: Color(0xFF1F5DA0)),
-                          label: const Text(
+                          icon: Icon(Icons.map_rounded, size: Responsive.font(16), color: const Color(0xFF1F5DA0)),
+                          label: Text(
                             "Ver mapa",
                             style: TextStyle(
                               color: Color(0xFF1F5DA0),
                               fontFamily: "Poppins",
                               fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                              fontSize: Responsive.font(13),
                             ),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 14),
+                    SizedBox(height: Responsive.h(2)),
 
                     FutureBuilder<List<Pista>>(
                       future: pistas,
@@ -242,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: Responsive.h(4.5)),
                   ],
                 ),
               ),
@@ -267,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (reservas.isEmpty) {
           return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(Responsive.padding(20)),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
@@ -282,15 +284,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(Responsive.padding(12)),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1F5DA0).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(Icons.calendar_today_outlined, color: Color(0xFF1F5DA0), size: 26),
                 ),
-                const SizedBox(width: 14),
-                const Column(
+                SizedBox(width: Responsive.w(3.5)),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -298,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: Responsive.font(15),
                       ),
                     ),
                     Text(
@@ -306,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontFamily: "Poppins",
                         color: Colors.grey,
-                        fontSize: 13,
+                        fontSize: Responsive.font(13),
                       ),
                     ),
                   ],
@@ -350,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(Responsive.padding(20)),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -367,31 +369,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Text(
                           reserva["pista"],
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontFamily: "Poppins",
-                            fontSize: 12,
+                            fontSize: Responsive.font(12),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: Responsive.h(1.2)),
                       Text(
                         reserva["club"],
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: Responsive.font(20),
                           fontWeight: FontWeight.bold,
                           fontFamily: "Poppins",
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: Responsive.h(0.9)),
                       Row(
                         children: [
                           const Icon(Icons.access_time_rounded, color: Colors.white70, size: 14),
                           const SizedBox(width: 4),
                           Text(
                             "${fecha.hour}:00 · 1 hora",
-                            style: const TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: 13),
+                            style: TextStyle(color: Colors.white70, fontFamily: "Poppins", fontSize: Responsive.font(13)),
                           ),
                         ],
                       ),
@@ -400,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: Responsive.padding(14), vertical: Responsive.padding(10)),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
@@ -409,18 +411,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         "${fecha.day}",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFF1F5DA0),
-                          fontSize: 22,
+                          fontSize: Responsive.font(22),
                           fontWeight: FontWeight.bold,
                           fontFamily: "Poppins",
                         ),
                       ),
                       Text(
                         meses[fecha.month - 1],
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Color(0xFF1F5DA0),
-                          fontSize: 11,
+                          fontSize: Responsive.font(11),
                           fontFamily: "Poppins",
                         ),
                       ),
@@ -442,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(builder: (_) => PistaDetailScreen(pista: pista)),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
+        margin: EdgeInsets.only(bottom: Responsive.h(2)),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -464,13 +466,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Image.asset(
                 "assets/images/Basica1.png",
-                width: MediaQuery.of(context).size.width * 0.22,
-                height: MediaQuery.of(context).size.width * 0.22,
+                width: Responsive.w(22),
+                height: Responsive.w(22),
                 fit: BoxFit.cover,
               ),
             ),
 
-            const SizedBox(width: 14),
+            SizedBox(width: Responsive.w(3.5)),
 
             Expanded(
               child: Column(
@@ -478,24 +480,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     pista.nombre,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: Responsive.font(16),
                       fontWeight: FontWeight.bold,
                       fontFamily: "Poppins",
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: Responsive.h(0.6)),
                   Row(
                     children: [
                       const Icon(Icons.location_on_outlined, size: 13, color: Colors.grey),
                       const SizedBox(width: 3),
                       Text(
                         pista.ciudad,
-                        style: const TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: 13),
+                        style: TextStyle(color: Colors.grey, fontFamily: "Poppins", fontSize: Responsive.font(13)),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: Responsive.h(0.9)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     decoration: BoxDecoration(
@@ -504,11 +506,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Text(
                       "${pista.precioHora}€/hora",
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFF1F5DA0),
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: Responsive.font(12),
                       ),
                     ),
                   ),
@@ -516,9 +518,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const Padding(
-              padding: EdgeInsets.only(right: 14),
-              child: Icon(Icons.arrow_forward_ios_rounded, size: 15, color: Colors.grey),
+            Padding(
+              padding: EdgeInsets.only(right: Responsive.padding(14)),
+              child: const Icon(Icons.arrow_forward_ios_rounded, size: 15, color: Colors.grey),
             ),
           ],
         ),

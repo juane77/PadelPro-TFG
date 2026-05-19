@@ -4,6 +4,7 @@ import '../service/reserva_service.dart';
 import '../service/reserva_provider.dart';
 import '../service/session.dart';
 import '../service/notification_push_service.dart';
+import '../utils/responsive.dart';
 import '../utils/app_snackbar.dart';
 
 class MisReservasScreen extends StatefulWidget {
@@ -109,6 +110,7 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
@@ -116,12 +118,12 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
         backgroundColor: const Color(0xFF1F5DA0),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           "Mis reservas",
           style: TextStyle(
             fontFamily: "Poppins",
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: Responsive.font(20),
           ),
         ),
       ),
@@ -143,13 +145,13 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey.shade300),
-                  const SizedBox(height: 16),
-                  const Text(
+                  Icon(Icons.calendar_today_outlined, size: Responsive.imageSize(64), color: Colors.grey.shade300),
+                  SizedBox(height: Responsive.h(2.5)),
+                  Text(
                     "No tienes reservas activas",
                     style: TextStyle(
                       fontFamily: "Poppins",
-                      fontSize: 16,
+                      fontSize: Responsive.font(16),
                       color: Colors.grey,
                     ),
                   ),
@@ -159,14 +161,14 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(Responsive.padding(16)),
             itemCount: lista.length,
             itemBuilder: (context, index) {
               final reserva = lista[index];
               DateTime fecha = DateTime.parse(reserva["fechaReserva"]);
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 14),
+                margin: EdgeInsets.only(bottom: Responsive.h(2)),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -179,14 +181,13 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Responsive.padding(16)),
                   child: Row(
                     children: [
 
-                      // BLOQUE FECHA IZQUIERDA
                       Container(
-                        width: 58,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        width: Responsive.w(14),
+                        padding: EdgeInsets.symmetric(vertical: Responsive.padding(10)),
                         decoration: BoxDecoration(
                           color: const Color(0xFF1F5DA0),
                           borderRadius: BorderRadius.circular(14),
@@ -196,18 +197,18 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                           children: [
                             Text(
                               "${fecha.day}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 22,
+                                fontSize: Responsive.font(22),
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins",
                               ),
                             ),
                             Text(
                               _nombreMes(fecha.month),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 11,
+                                fontSize: Responsive.font(11),
                                 fontFamily: "Poppins",
                               ),
                             ),
@@ -215,50 +216,49 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                         ),
                       ),
 
-                      const SizedBox(width: 14),
+                      SizedBox(width: Responsive.w(3.5)),
 
-                      // INFO CENTRAL
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               reserva["pista"],
-                              style: const TextStyle(
-                                fontSize: 16,
+                              style: TextStyle(
+                                fontSize: Responsive.font(16),
                                 fontWeight: FontWeight.bold,
                                 fontFamily: "Poppins",
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: Responsive.h(0.3)),
                             Text(
                               reserva["club"],
-                              style: const TextStyle(
-                                fontSize: 13,
+                              style: TextStyle(
+                                fontSize: Responsive.font(13),
                                 color: Colors.grey,
                                 fontFamily: "Poppins",
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: Responsive.h(1.2)),
                             Row(
                               children: [
                                 const Icon(Icons.calendar_today_outlined, size: 13, color: Colors.grey),
                                 const SizedBox(width: 4),
                                 Text(
                                   _nombreDiaSemana(fecha),
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: TextStyle(
+                                    fontSize: Responsive.font(12),
                                     color: Colors.grey,
                                     fontFamily: "Poppins",
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: Responsive.w(3)),
                                 const Icon(Icons.access_time_rounded, size: 13, color: Colors.grey),
                                 const SizedBox(width: 4),
                                 Text(
                                   "${fecha.hour}:00",
-                                  style: const TextStyle(
-                                    fontSize: 12,
+                                  style: TextStyle(
+                                    fontSize: Responsive.font(12),
                                     color: Colors.grey,
                                     fontFamily: "Poppins",
                                   ),
@@ -269,19 +269,18 @@ class _MisReservasScreenState extends State<MisReservasScreen> {
                         ),
                       ),
 
-                      // BOTÓN CANCELAR
                       GestureDetector(
                         onTap: () => cancelarReserva(reserva["id"]),
                         child: Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: EdgeInsets.all(Responsive.padding(10)),
                           decoration: BoxDecoration(
                             color: Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close_rounded,
                             color: Colors.red,
-                            size: 22,
+                            size: Responsive.imageSize(22),
                           ),
                         ),
                       ),
