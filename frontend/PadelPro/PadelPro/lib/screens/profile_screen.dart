@@ -427,14 +427,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "${Session.pelotas} pelotas",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "Poppins",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: Responsive.font(18),
-                                  ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "${Session.pelotas} pelotas",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: "Poppins",
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: Responsive.font(18),
+                                      ),
+                                    ),
+                                    SizedBox(width: Responsive.w(2.5)),
+                                    const Icon(Icons.info_outline, color: Colors.white70, size: 18),
+                                  ],
                                 ),
                                 Text(
                                   "Tu saldo actual — pulsa para saber más",
@@ -446,8 +453,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(width: Responsive.w(2.5)),
-                            const Icon(Icons.info_outline, color: Colors.white70, size: 18),
                           ],
                         ),
                       ),

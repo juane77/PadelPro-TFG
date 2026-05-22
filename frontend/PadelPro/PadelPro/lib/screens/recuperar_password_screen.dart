@@ -344,7 +344,7 @@ class _RecuperarPasswordScreenState extends State<RecuperarPasswordScreen> {
                     ),
                   )
                 : Text(
-                    "Verificar código",
+                    "Confirmar",
                     style: TextStyle(
                       fontSize: (w * 0.05).clamp(16.0, 20.0),
                       fontFamily: "Poppins",
